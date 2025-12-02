@@ -16,7 +16,6 @@ class LoginScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(Spacing.lg),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextField(decoration: InputDecoration(labelText: 'Email')),
               const SizedBox(height: Spacing.md),

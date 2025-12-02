@@ -15,7 +15,6 @@ class RegisterScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(Spacing.lg),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextField(decoration: InputDecoration(labelText: 'Name')),
               const SizedBox(height: Spacing.md),
