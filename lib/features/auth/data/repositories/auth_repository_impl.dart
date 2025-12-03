@@ -1,3 +1,4 @@
+import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/errors/failures.dart';
@@ -10,10 +11,11 @@ import '../dtos/auth_record_dto.dart';
 import '../dtos/user_dto.dart';
 import '../dtos/user_dto_extension.dart';
 
+@LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this._hiveService);
+  AuthRepositoryImpl();
 
-  final HiveService _hiveService;
+  HiveService get _hiveService => HiveService.instance;
   static const String _authRecordKey = 'auth_record';
   static const String _userRecordKey = 'user_record';
   static const String _currentUserKey = 'current_user';
@@ -24,19 +26,13 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      if (email.isEmpty || password.isEmpty) {
-        return Result.failure(
-          const CacheFailure(code: 'EMAIL_OR_PASSWORD_EMPTY'),
-        );
-      }
-
       final authRecords = _hiveService.readListMap<AuthRecordDto>(
         _authRecordKey,
         fromJson: AuthRecordDto.fromJson,
       );
 
       if (authRecords == null || authRecords.isEmpty) {
-        return Result.failure(const CacheFailure(code: 'USER_NOT_FOUND'));
+        return Result.failure(const UserNotFoundFailure());
       }
 
       final authRecord = authRecords.firstWhere(
@@ -45,11 +41,11 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
       if (authRecord.email == null || authRecord.hashedPassword == null) {
-        return Result.failure(const CacheFailure(code: 'USER_NOT_FOUND'));
+        return Result.failure(const UserNotFoundFailure());
       }
 
       if (!PasswordHasher.verify(password, authRecord.hashedPassword!)) {
-        return Result.failure(const CacheFailure(code: 'INVALID_CREDENTIALS'));
+        return Result.failure(const InvalidCredentialsFailure());
       }
 
       final userRecords = _hiveService.readListMap<UserDto>(
@@ -58,7 +54,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
       if (userRecords == null || userRecords.isEmpty) {
-        return Result.failure(const CacheFailure(code: 'USER_DATA_NOT_FOUND'));
+        return Result.failure(const UserDataNotFoundFailure());
       }
 
       final userDto = userRecords.firstWhere(
@@ -68,10 +64,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final user = userDto.toDomain();
       if (!user.isValid) {
-        return Result.failure(const CacheFailure(code: 'USER_DATA_NOT_FOUND'));
+        return Result.failure(const UserDataNotFoundFailure());
       }
 
       await _setCurrentUser(userDto);
+      await Future.delayed(const Duration(seconds: 2));
       return Result.success(user);
     } on CacheReadException catch (e) {
       return Result.failure(CacheFailure(code: e.message));
@@ -87,12 +84,6 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      if (name.isEmpty || email.isEmpty || password.isEmpty) {
-        return Result.failure(
-          const CacheFailure(code: 'REQUIRED_FIELDS_EMPTY'),
-        );
-      }
-
       final existingAuthRecords = _hiveService.readListMap<AuthRecordDto>(
         _authRecordKey,
         fromJson: AuthRecordDto.fromJson,
@@ -103,9 +94,7 @@ class AuthRepositoryImpl implements AuthRepository {
           (record) => record.email == email,
         );
         if (emailExists) {
-          return Result.failure(
-            const CacheFailure(code: 'EMAIL_ALREADY_EXISTS'),
-          );
+          return Result.failure(const EmailAlreadyExistsFailure());
         }
       }
 
@@ -122,21 +111,26 @@ class AuthRepositoryImpl implements AuthRepository {
       await _addAuthRecord(authRecord);
       await _addUserRecord(userDto);
       await _setCurrentUser(userDto);
+      await Future.delayed(const Duration(seconds: 2));
 
       return Result.success(userDto.toDomain());
     } on CacheWriteException {
-      return Result.failure(CacheFailure(code: 'FAILED_TO_REGISTER_USER'));
+      return Result.failure(const FailedToRegisterUserFailure());
     } catch (e) {
       return Result.failure(UnknownFailure(code: e.toString()));
     }
   }
 
   @override
-  Future<Result<User?>> getCurrentUser() async {
+  Future<Result<User>> getCurrentUser() async {
     try {
-      final currentUser = _hiveService.read<UserDto>(_currentUserKey);
+      await Future.delayed(const Duration(seconds: 2));
+      final currentUser = _hiveService.readMap<UserDto>(
+        _currentUserKey,
+        fromJson: UserDto.fromJson,
+      );
       if (currentUser == null) {
-        return Result.success(null);
+        return Result.success(User.empty());
       }
 
       return Result.success(currentUser.toDomain());

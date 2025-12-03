@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+part 'auth_failures.dart';
+
 /// Base class for all failures in the app
 /// Uses sealed classes for exhaustive pattern matching
 sealed class Failure extends Equatable {

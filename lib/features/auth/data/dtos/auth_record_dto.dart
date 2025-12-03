@@ -4,10 +4,7 @@ part 'auth_record_dto.g.dart';
 
 @JsonSerializable()
 class AuthRecordDto {
-  const AuthRecordDto({
-    this.email,
-    this.hashedPassword,
-  });
+  const AuthRecordDto({this.email, this.hashedPassword});
 
   final String? email;
   @JsonKey(name: 'hashed_password')
@@ -18,4 +15,3 @@ class AuthRecordDto {
 
   Map<String, dynamic> toJson() => _$AuthRecordDtoToJson(this);
 }
-

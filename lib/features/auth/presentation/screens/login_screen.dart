@@ -1,10 +1,30 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:turbovetschat/config/injection/injection.dart';
 import 'package:turbovetschat/core/themes/spacings.dart';
+import 'package:turbovetschat/core/errors/failure_message_mapper.dart';
+
+import '../bloc/login_cubit.dart';
+import '../bloc/login_state.dart';
+import '../widgets/login_email_input.dart';
+import '../widgets/login_password_input.dart';
 
 @RoutePage()
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => getIt<LoginCubit>(),
+      child: const LoginView(),
+    );
+  }
+}
+
+class LoginView extends StatelessWidget {
+  const LoginView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,24 +33,59 @@ class LoginScreen extends StatelessWidget {
         title: Text('Login', style: Theme.of(context).textTheme.titleMedium),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(Spacing.lg),
-          child: Column(
-            children: [
-              TextField(decoration: InputDecoration(labelText: 'Email')),
-              const SizedBox(height: Spacing.md),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(labelText: 'Password'),
-              ),
-              const SizedBox(height: Spacing.lg),
-              ElevatedButton(
-                onPressed: () {
-                  // TODO: Implement login logic
-                },
-                child: const Text('Login'),
-              ),
-            ],
+        child: BlocListener<LoginCubit, LoginState>(
+          listener: (context, state) {
+            if (state.failure != null) {
+              final result = FailureMessageMapper.mapFailureToMessage(
+                state.failure!,
+              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(result.message)));
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(Spacing.lg),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const LoginEmailInput(),
+                const SizedBox(height: Spacing.md),
+                const LoginPasswordInput(),
+                const SizedBox(height: Spacing.lg),
+                BlocSelector<LoginCubit, LoginState, bool>(
+                  selector: (state) => state.isFormValid && !state.isLoading,
+                  builder: (context, isEnabled) {
+                    return BlocSelector<LoginCubit, LoginState, bool>(
+                      selector: (state) => state.isLoading,
+                      builder: (context, isLoading) {
+                        return SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: isEnabled
+                                ? () {
+                                    context.read<LoginCubit>().loginSubmitted(
+                                      context.router,
+                                    );
+                                  }
+                                : null,
+                            child: isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text('Login'),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

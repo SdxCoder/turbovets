@@ -4,11 +4,7 @@ part 'user_dto.g.dart';
 
 @JsonSerializable()
 class UserDto {
-  const UserDto({
-    this.id,
-    this.name,
-    this.email,
-  });
+  const UserDto({this.id, this.name, this.email});
 
   final String? id;
   final String? name;
@@ -19,4 +15,3 @@ class UserDto {
 
   Map<String, dynamic> toJson() => _$UserDtoToJson(this);
 }
-

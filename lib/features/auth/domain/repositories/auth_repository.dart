@@ -10,7 +10,7 @@ abstract class AuthRepository {
     required String password,
   });
 
-  Future<Result<User?>> getCurrentUser();
+  Future<Result<User>> getCurrentUser();
 
   Future<Result<void>> logout();
 }

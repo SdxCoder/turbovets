@@ -17,6 +17,10 @@ class User extends Equatable {
     );
   }
 
+  factory User.empty() {
+    return User(id: '', name: '', email: '');
+  }
+
   @override
   List<Object?> get props => [id, name, email];
 }
