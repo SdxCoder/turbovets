@@ -12,6 +12,15 @@
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
+import '../../core/services/hive/hive_service.dart' as _i498;
+import '../../core/services/hive/index.dart' as _i402;
+import '../../features/agents/data/repositories/agent_repository_impl.dart'
+    as _i1045;
+import '../../features/agents/domain/repositories/agent_repository.dart'
+    as _i575;
+import '../../features/agents/domain/usecases/get_agents.dart' as _i744;
+import '../../features/agents/domain/usecases/initialize_agents.dart' as _i1025;
+import '../../features/agents/presentation/bloc/agent_cubit.dart' as _i396;
 import '../../features/auth/data/repositories/auth_repository_impl.dart'
     as _i153;
 import '../../features/auth/domain/repositories/auth_repository.dart' as _i787;
@@ -21,7 +30,11 @@ import '../../features/auth/domain/usecases/logout.dart' as _i597;
 import '../../features/auth/domain/usecases/register.dart' as _i480;
 import '../../features/auth/presentation/bloc/login_cubit.dart' as _i281;
 import '../../features/auth/presentation/bloc/register_cubit.dart' as _i98;
+import '../../features/chat/data/repositories/chat_repository_impl.dart'
+    as _i504;
+import '../../features/chat/domain/repositories/chat_repository.dart' as _i420;
 import '../../features/splash/presentation/bloc/splash_cubit.dart' as _i955;
+import 'injection.dart' as _i464;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -30,7 +43,23 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
-    gh.lazySingleton<_i787.AuthRepository>(() => _i153.AuthRepositoryImpl());
+    final registerModule = _$RegisterModule();
+    gh.lazySingleton<_i498.HiveService>(() => registerModule.hiveService);
+    gh.lazySingleton<_i420.ChatRepository>(
+      () => _i504.ChatRepositoryImpl(gh<_i498.HiveService>()),
+    );
+    gh.lazySingleton<_i575.AgentRepository>(
+      () => _i1045.AgentRepositoryImpl(gh<_i498.HiveService>()),
+    );
+    gh.lazySingleton<_i787.AuthRepository>(
+      () => _i153.AuthRepositoryImpl(gh<_i402.HiveService>()),
+    );
+    gh.factory<_i744.GetAgents>(
+      () => _i744.GetAgents(gh<_i575.AgentRepository>()),
+    );
+    gh.factory<_i1025.InitializeAgents>(
+      () => _i1025.InitializeAgents(gh<_i575.AgentRepository>()),
+    );
     gh.factory<_i111.GetCurrentUser>(
       () => _i111.GetCurrentUser(gh<_i787.AuthRepository>()),
     );
@@ -38,6 +67,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i597.Logout>(() => _i597.Logout(gh<_i787.AuthRepository>()));
     gh.factory<_i480.Register>(
       () => _i480.Register(gh<_i787.AuthRepository>()),
+    );
+    gh.factory<_i396.AgentCubit>(
+      () => _i396.AgentCubit(
+        gh<_i1025.InitializeAgents>(),
+        gh<_i744.GetAgents>(),
+      ),
     );
     gh.factory<_i281.LoginCubit>(() => _i281.LoginCubit(gh<_i428.Login>()));
     gh.factory<_i955.SplashCubit>(
@@ -49,3 +84,5 @@ extension GetItInjectableX on _i174.GetIt {
     return this;
   }
 }
+
+class _$RegisterModule extends _i464.RegisterModule {}

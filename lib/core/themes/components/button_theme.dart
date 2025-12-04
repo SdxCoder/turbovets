@@ -55,3 +55,12 @@ final OutlinedButtonThemeData appOutlinedButtonThemeDark =
         textStyle: appTextTheme.titleMedium,
       ),
     );
+
+final TextButtonThemeData appTextButtonTheme = TextButtonThemeData(
+  style: TextButton.styleFrom(
+    minimumSize: const Size(double.infinity, 48),
+    textStyle: appTextTheme.bodyLarge,
+  ),
+);
+
+final TextButtonThemeData appTextButtonThemeDark = appTextButtonTheme;

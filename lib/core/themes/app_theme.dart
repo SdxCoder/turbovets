@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+
 import 'color_schemes/dark_colors.dart';
 import 'color_schemes/light_colors.dart';
 import 'components/app_bar_theme.dart';
+import 'components/bottom_navigation_bar_theme.dart';
 import 'components/button_theme.dart';
+import 'components/dialog_theme.dart';
 import 'components/input_theme.dart';
 import 'text/text_theme.dart';
 
@@ -19,10 +22,11 @@ class AppTheme {
     // Component themes
     appBarTheme: appBarTheme,
     elevatedButtonTheme: appButtonTheme,
-
     outlinedButtonTheme: appOutlinedButtonTheme,
+    textButtonTheme: appTextButtonTheme,
     inputDecorationTheme: appInputTheme,
-
+    bottomNavigationBarTheme: appBottomNavigationBarTheme,
+    dialogTheme: appDialogTheme,
     // Additional configurations
     scaffoldBackgroundColor: lightColorScheme.surface,
     dividerColor: lightColorScheme.outline,
@@ -40,8 +44,10 @@ class AppTheme {
     appBarTheme: appBarThemeDark,
     elevatedButtonTheme: appButtonThemeDark,
     outlinedButtonTheme: appOutlinedButtonThemeDark,
+    textButtonTheme: appTextButtonThemeDark,
     inputDecorationTheme: appInputThemeDark,
-
+    bottomNavigationBarTheme: appBottomNavigationBarThemeDark,
+    dialogTheme: appDialogThemeDark,
     // Additional configurations
     scaffoldBackgroundColor: darkColorScheme.surface,
     dividerColor: darkColorScheme.outline,

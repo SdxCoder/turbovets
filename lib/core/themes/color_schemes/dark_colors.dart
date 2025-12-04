@@ -51,4 +51,5 @@ final ColorScheme darkColorScheme = ColorScheme(
 extension DarkColorScheme on ColorScheme {
   Color get inputFilledColor => AppColors.darkWhiteSmoke;
   Color get appBarTitleColor => AppColors.darkBlack;
+  Color get dialogBackgroundColor => AppColors.darkWhiteSnow;
 }

@@ -1,4 +1,6 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/material.dart';
+
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/welcome_screen.dart';
@@ -15,4 +17,17 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: RegisterRoute.page),
     AutoRoute(page: HomeRoute.page),
   ];
+}
+
+extension ActionDialogWidgetExtension on StackRouter {
+  Future<T?> openDialog<T>({
+    bool barrierDismissible = true,
+    required Widget child,
+  }) {
+    return showDialog<T>(
+      barrierDismissible: barrierDismissible,
+      context: navigatorKey.currentContext!,
+      builder: (context) => child,
+    );
+  }
 }

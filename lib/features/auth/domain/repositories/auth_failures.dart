@@ -1,4 +1,4 @@
-part of 'failures.dart';
+part of 'package:turbovetschat/core/errors/failures.dart';
 
 sealed class AuthFailure extends Failure {
   const AuthFailure({super.code});

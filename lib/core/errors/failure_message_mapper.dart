@@ -41,6 +41,22 @@ class FailureMessageMapper {
         title: 'Registration Failed',
         message: 'Failed to register user. Please try again',
       ),
+      ChatAlreadyExistsFailure() => (
+        title: 'Chat Already Exists',
+        message: 'A chat with this agent already exists',
+      ),
+      ChatNotFoundFailure() => (
+        title: 'Chat Not Found',
+        message: 'Chat not found. Please try again',
+      ),
+      AgentNotFoundFailure() => (
+        title: 'Agent Not Found',
+        message: 'Agent not found. Please try again',
+      ),
+      AgentsNotInitializedFailure() => (
+        title: 'Agents Not Initialized',
+        message: 'Agents have not been initialized. Please try again',
+      ),
       UnknownFailure(:final code) => (
         title: 'Unknown Error',
         message: code ?? 'An unexpected error occurred. Please try again',

@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-part 'auth_failures.dart';
+part '../../features/auth/domain/repositories/auth_failures.dart';
+part '../../features/chat/domain/repositories/chat_failures.dart';
 
 /// Base class for all failures in the app
 /// Uses sealed classes for exhaustive pattern matching
@@ -14,11 +15,19 @@ sealed class Failure extends Equatable {
 }
 
 /// Cache/local storage failures
-class CacheFailure extends Failure {
+sealed class CacheFailure extends Failure {
   const CacheFailure({super.code});
+}
+
+class CacheReadFailure extends CacheFailure {
+  const CacheReadFailure() : super(code: 'CACHE_READ_FAILURE');
+}
+
+class CacheWriteFailure extends CacheFailure {
+  const CacheWriteFailure() : super(code: 'CACHE_WRITE_FAILURE');
 }
 
 /// Unknown/unexpected failures
 class UnknownFailure extends Failure {
-  const UnknownFailure({super.code});
+  const UnknownFailure() : super(code: 'UNKNOWN_FAILURE');
 }

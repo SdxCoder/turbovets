@@ -13,9 +13,9 @@ import '../dtos/user_dto_extension.dart';
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl();
+  final HiveService _hiveService;
+  AuthRepositoryImpl(this._hiveService);
 
-  HiveService get _hiveService => HiveService.instance;
   static const String _authRecordKey = 'auth_record';
   static const String _userRecordKey = 'user_record';
   static const String _currentUserKey = 'current_user';
@@ -70,10 +70,10 @@ class AuthRepositoryImpl implements AuthRepository {
       await _setCurrentUser(userDto);
       await Future.delayed(const Duration(seconds: 2));
       return Result.success(user);
-    } on CacheReadException catch (e) {
-      return Result.failure(CacheFailure(code: e.message));
+    } on CacheReadException {
+      return Result.failure(CacheReadFailure());
     } catch (e) {
-      return Result.failure(UnknownFailure(code: e.toString()));
+      return Result.failure(UnknownFailure());
     }
   }
 
@@ -117,7 +117,7 @@ class AuthRepositoryImpl implements AuthRepository {
     } on CacheWriteException {
       return Result.failure(const FailedToRegisterUserFailure());
     } catch (e) {
-      return Result.failure(UnknownFailure(code: e.toString()));
+      return Result.failure(UnknownFailure());
     }
   }
 
@@ -134,10 +134,10 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       return Result.success(currentUser.toDomain());
-    } on CacheReadException catch (e) {
-      return Result.failure(CacheFailure(code: e.message));
+    } on CacheReadException {
+      return Result.failure(CacheReadFailure());
     } catch (e) {
-      return Result.failure(UnknownFailure(code: e.toString()));
+      return Result.failure(UnknownFailure());
     }
   }
 
@@ -146,10 +146,10 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _hiveService.remove(_currentUserKey);
       return Result.success(null);
-    } on CacheWriteException catch (e) {
-      return Result.failure(CacheFailure(code: e.message));
+    } on CacheWriteException {
+      return Result.failure(CacheWriteFailure());
     } catch (e) {
-      return Result.failure(UnknownFailure(code: e.toString()));
+      return Result.failure(UnknownFailure());
     }
   }
 
