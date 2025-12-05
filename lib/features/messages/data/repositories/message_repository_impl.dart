@@ -112,7 +112,6 @@ class MessageRepositoryImpl implements MessageRepository {
         id: chatDto.id,
         user: chatDto.user,
         agent: chatDto.agent,
-        isRead: chatDto.isRead,
         lastMessageTimestamp: timestamp.toIso8601String(),
         unreadCount: unreadCount,
       );

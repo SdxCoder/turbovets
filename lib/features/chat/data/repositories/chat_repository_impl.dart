@@ -53,7 +53,6 @@ class ChatRepositoryImpl implements ChatRepository {
         id: chatId,
         user: userDto,
         agent: agentDto,
-        isRead: false,
         lastMessageTimestamp: null,
         unreadCount: 0,
       );

@@ -78,7 +78,6 @@ class MessagesCubit extends Cubit<MessagesState> {
 
     switch (result) {
       case Success():
-        // Stream will automatically update messages
         break;
       case Error(:final failure):
         emit(state.copyWith(failure: failure));

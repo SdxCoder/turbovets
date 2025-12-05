@@ -17,7 +17,6 @@ class ChatDto {
     this.id,
     this.user,
     this.agent,
-    this.isRead,
     this.lastMessageTimestamp,
     this.unreadCount,
   });
@@ -25,8 +24,6 @@ class ChatDto {
   final String? id;
   final UserDto? user;
   final AgentDto? agent;
-  @JsonKey(name: 'is_read')
-  final bool? isRead;
   @JsonKey(name: 'last_message_timestamp')
   final String? lastMessageTimestamp;
   @JsonKey(name: 'unread_count')
@@ -58,7 +55,6 @@ extension ChatX on Chat {
       id: id,
       user: user.toDto(),
       agent: agent.toDto(),
-      isRead: isRead,
       lastMessageTimestamp: lastMessageTimestamp.value,
       unreadCount: unreadCount,
     );

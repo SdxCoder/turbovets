@@ -5,6 +5,8 @@ import 'package:turbovetschat/config/injection/injection.dart';
 
 import '../../../../core/errors/failure_message_mapper.dart';
 import '../../../../core/themes/spacings.dart';
+import '../../../../core/widgets/animated_message_list_widget.dart';
+import '../../domain/entities/message.dart';
 import '../bloc/messages_cubit.dart';
 import '../bloc/messages_state.dart';
 import '../widgets/chat_input_box.dart';
@@ -75,28 +77,14 @@ class _MessagesViewState extends State<MessagesView> {
         ),
         BlocListener<MessagesCubit, MessagesState>(
           listenWhen: (previous, current) =>
-              current.failure != null ||
-              (previous.messages.length != current.messages.length &&
-                  !current.isSending),
+              previous.messages.length != current.messages.length &&
+              !current.isSending,
           listener: (context, state) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.read<MessagesCubit>().markMessagesAsRead(widget.chatId);
-              if (_scrollController.hasClients) {
-                _scrollController.animateTo(
-                  0,
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.elasticOut,
-                );
-              }
-            });
+            context.read<MessagesCubit>().markMessagesAsRead(widget.chatId);
           },
         ),
       ],
       child: BlocBuilder<MessagesCubit, MessagesState>(
-        // buildWhen: (previous, current) =>
-        //     previous.messages.length != current.messages.length ||
-        //     previous.isLoading != current.isLoading ||
-        //     previous.chat.id != current.chat.id,
         builder: (context, state) {
           final chat = state.chat;
           final currentUserId = chat.user.id;
@@ -113,18 +101,16 @@ class _MessagesViewState extends State<MessagesView> {
                 : Column(
                     children: [
                       Expanded(
-                        child: ListView.builder(
+                        child: AnimatedListWidget<Message>(
+                          items: state.messages,
+                          keyExtractor: (message) => message.id,
                           controller: _scrollController,
                           reverse: true,
                           padding: const EdgeInsets.symmetric(
                             vertical: Spacing.sm,
                           ),
-                          itemCount: state.messages.length,
-                          itemBuilder: (context, index) {
-                            final message = state
-                                .messages[state.messages.length - 1 - index];
-
-                            final messageWidget = message.isSelf
+                          itemBuilder: (context, message, index) {
+                            return message.isSelf
                                 ? RightMessage(
                                     text: message.content.isNotEmpty
                                         ? message.content
@@ -144,8 +130,6 @@ class _MessagesViewState extends State<MessagesView> {
                                         ? message.media
                                         : null,
                                   );
-
-                            return messageWidget;
                           },
                         ),
                       ),

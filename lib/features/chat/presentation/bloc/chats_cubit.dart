@@ -25,7 +25,7 @@ class ChatsCubit extends Cubit<ChatsState> {
   void _startWatchingChats() {
     _chatsSubscription?.cancel();
     _chatsSubscription = _watchChats().listen((chats) {
-      emit(state.copyWith(chats: chats, failure: null));
+      emit(state.copyWith(chats: chats));
     });
   }
 
@@ -33,7 +33,7 @@ class ChatsCubit extends Cubit<ChatsState> {
     required Agent agent,
     required StackRouter router,
   }) async {
-    emit(state.copyWith(isCreatingChat: true, failure: null));
+    emit(state.copyWith(isCreatingChat: true));
     final result = await _createChat(agent: agent);
     emit(state.copyWith(isCreatingChat: false));
 

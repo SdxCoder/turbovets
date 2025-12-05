@@ -14,7 +14,6 @@ ChatDto _$ChatDtoFromJson(Map<String, dynamic> json) => ChatDto(
   agent: json['agent'] == null
       ? null
       : AgentDto.fromJson(json['agent'] as Map<String, dynamic>),
-  isRead: json['is_read'] as bool?,
   lastMessageTimestamp: json['last_message_timestamp'] as String?,
   unreadCount: (json['unread_count'] as num?)?.toInt(),
 );
@@ -23,7 +22,6 @@ Map<String, dynamic> _$ChatDtoToJson(ChatDto instance) => <String, dynamic>{
   'id': instance.id,
   'user': instance.user,
   'agent': instance.agent,
-  'is_read': instance.isRead,
   'last_message_timestamp': instance.lastMessageTimestamp,
   'unread_count': instance.unreadCount,
 };
