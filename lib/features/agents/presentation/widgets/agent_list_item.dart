@@ -22,7 +22,7 @@ class AgentListItem extends StatelessWidget {
         ),
         child: Row(
           children: [
-            NetworkImageWidget(imageUrl: agent.imageUrl),
+            ClipOval(child: NetworkImageWidget(imageUrl: agent.imageUrl)),
             const SizedBox(width: Spacing.md),
             Expanded(
               child: ListItemContentWidget(

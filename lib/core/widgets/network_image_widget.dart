@@ -21,33 +21,31 @@ class NetworkImageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipOval(
-      child: CachedNetworkImage(
-        imageUrl: imageUrl,
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      width: width,
+      height: height,
+      fit: fit,
+      placeholder:
+          placeholder ??
+          (context, url) => Container(
+            width: width,
+            height: height,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            child: const Center(
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+      errorWidget: (context, url, error) => Container(
         width: width,
         height: height,
-        fit: fit,
-        placeholder:
-            placeholder ??
-            (context, url) => Container(
-              width: width,
-              height: height,
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              child: const Center(
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        child:
+            errorPlaceholder ??
+            Icon(
+              Icons.image,
+              color: Theme.of(context).colorScheme.inverseSurface,
             ),
-        errorWidget: (context, url, error) => Container(
-          width: width,
-          height: height,
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          child:
-              errorPlaceholder ??
-              Icon(
-                Icons.person,
-                color: Theme.of(context).colorScheme.inverseSurface,
-              ),
-        ),
       ),
     );
   }

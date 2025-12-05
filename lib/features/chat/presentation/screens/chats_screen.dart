@@ -22,7 +22,7 @@ class ChatsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => getIt<ChatsCubit>()..loadChats(),
+      create: (_) => getIt<ChatsCubit>(),
       child: const ChatsView(),
     );
   }

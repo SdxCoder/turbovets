@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:hive/hive.dart';
@@ -103,6 +104,37 @@ class HiveService {
       await _hiveBox.delete(key);
     } catch (e) {
       throw CacheWriteException('Failed to remove item with key "$key": $e');
+    }
+  }
+
+  Stream<List<T>> watchListMap<T>(
+    String key, {
+    required T Function(Map<String, dynamic>) fromJson,
+  }) {
+    try {
+      final currentValue = readListMap<T>(key, fromJson: fromJson) ?? <T>[];
+
+      return Stream.multi((controller) {
+        controller.add(currentValue);
+
+        final subscription = _hiveBox.watch(key: key).listen((event) {
+          if (event.value == null) {
+            controller.add(<T>[]);
+            return;
+          }
+          final jsonList = jsonDecode(event.value) as List<dynamic>?;
+          final result =
+              jsonList
+                  ?.map((item) => fromJson(item as Map<String, dynamic>))
+                  .toList() ??
+              <T>[];
+          controller.add(result);
+        });
+
+        controller.onCancel = () => subscription.cancel();
+      });
+    } catch (e) {
+      throw CacheReadException('Failed to watch list map with key "$key": $e');
     }
   }
 }

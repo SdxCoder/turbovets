@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 
 class Agent extends Equatable {
+  const Agent.empty() : this(id: '', imageUrl: '', name: '', description: '');
+
   const Agent({
     required this.id,
     required this.imageUrl,

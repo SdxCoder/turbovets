@@ -7,6 +7,7 @@ import '../../../agents/domain/entities/agent.dart';
 import '../../../auth/data/dtos/user_dto.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../domain/entities/chat.dart';
+import '../../domain/value_objects/chat_timestamp.dart';
 
 part 'chat_dto.g.dart';
 
@@ -45,10 +46,7 @@ extension ChatDtoX on ChatDto {
       agent:
           agent?.toDomain() ??
           Agent(id: '', imageUrl: '', name: '', description: ''),
-      isRead: isRead ?? false,
-      lastMessageTimestamp: lastMessageTimestamp != null
-          ? DateTime.tryParse(lastMessageTimestamp!)
-          : null,
+      lastMessageTimestamp: ChatTimestamp(value: lastMessageTimestamp),
       unreadCount: unreadCount.orZero(),
     );
   }
@@ -61,7 +59,7 @@ extension ChatX on Chat {
       user: user.toDto(),
       agent: agent.toDto(),
       isRead: isRead,
-      lastMessageTimestamp: lastMessageTimestamp?.toIso8601String(),
+      lastMessageTimestamp: lastMessageTimestamp.value,
       unreadCount: unreadCount,
     );
   }

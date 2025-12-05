@@ -8,7 +8,7 @@ class DateFormatter {
       final date = DateTime(dateTime.year, dateTime.month, dateTime.day);
 
       if (date == today) {
-        return _formatTime(dateTime);
+        return formatTime(dateTime);
       } else if (date == yesterday) {
         return 'Yesterday';
       } else if (now.difference(dateTime).inDays < 7) {
@@ -21,7 +21,7 @@ class DateFormatter {
     }
   }
 
-  static String _formatTime(DateTime dateTime) {
+  static String formatTime(DateTime dateTime) {
     final hour = dateTime.hour;
     final minute = dateTime.minute.toString().padLeft(2, '0');
     final period = hour >= 12 ? 'PM' : 'AM';

@@ -1,5 +1,16 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:turbovetschat/config/injection/injection.dart';
+
+import '../../../../core/errors/failure_message_mapper.dart';
+import '../../../../core/themes/spacings.dart';
+import '../bloc/messages_cubit.dart';
+import '../bloc/messages_state.dart';
+import '../widgets/chat_input_box.dart';
+import '../widgets/left_message.dart';
+import '../widgets/messages_app_bar.dart';
+import '../widgets/right_message.dart';
 
 @RoutePage()
 class MessagesScreen extends StatelessWidget {
@@ -9,9 +20,146 @@ class MessagesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Messages')),
-      body: const Center(child: Text('Messages Screen')),
+    return BlocProvider(
+      create: (_) => getIt<MessagesCubit>()..getChatById(chatId),
+      child: MessagesView(chatId: chatId),
+    );
+  }
+}
+
+class MessagesView extends StatefulWidget {
+  const MessagesView({super.key, required this.chatId});
+
+  final String chatId;
+
+  @override
+  State<MessagesView> createState() => _MessagesViewState();
+}
+
+class _MessagesViewState extends State<MessagesView> {
+  final ScrollController _scrollController = ScrollController();
+
+  void _handleSendMessage(String text, String currentUserId) {
+    context.read<MessagesCubit>().sendTextMessage(
+      chatId: widget.chatId,
+      senderId: currentUserId,
+      content: text,
+      isSelf: true,
+    );
+  }
+
+  void _handleAttachFile() {
+    // TODO: Implement file attachment
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<MessagesCubit, MessagesState>(
+          listenWhen: (previous, current) => current.failure != null,
+          listener: (context, state) {
+            final failureMessage = FailureMessageMapper.mapFailureToMessage(
+              state.failure!,
+            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(failureMessage.message)));
+          },
+        ),
+        BlocListener<MessagesCubit, MessagesState>(
+          listenWhen: (previous, current) =>
+              current.failure != null ||
+              (previous.messages.length != current.messages.length &&
+                  !current.isSending),
+          listener: (context, state) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context.read<MessagesCubit>().markMessagesAsRead(widget.chatId);
+              if (_scrollController.hasClients) {
+                _scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.elasticOut,
+                );
+              }
+            });
+          },
+        ),
+      ],
+      child: BlocBuilder<MessagesCubit, MessagesState>(
+        // buildWhen: (previous, current) =>
+        //     previous.messages.length != current.messages.length ||
+        //     previous.isLoading != current.isLoading ||
+        //     previous.chat.id != current.chat.id,
+        builder: (context, state) {
+          final chat = state.chat;
+          final currentUserId = chat.user.id;
+          final isLoading = state.isLoading && state.messages.isEmpty;
+
+          return Scaffold(
+            appBar: MessagesAppBar(
+              agentName: chat.agent.name,
+              agentImageUrl: chat.agent.imageUrl,
+              statusText: 'Online',
+            ),
+            body: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          reverse: true,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: Spacing.sm,
+                          ),
+                          itemCount: state.messages.length,
+                          itemBuilder: (context, index) {
+                            final message = state
+                                .messages[state.messages.length - 1 - index];
+
+                            final messageWidget = message.isSelf
+                                ? RightMessage(
+                                    text: message.content.isNotEmpty
+                                        ? message.content
+                                        : null,
+                                    timestamp: message.timestamp,
+                                    images: message.media.isNotEmpty
+                                        ? message.media
+                                        : null,
+                                  )
+                                : LeftMessage(
+                                    text: message.content.isNotEmpty
+                                        ? message.content
+                                        : null,
+                                    avatarUrl: chat.agent.imageUrl,
+                                    timestamp: message.timestamp,
+                                    images: message.media.isNotEmpty
+                                        ? message.media
+                                        : null,
+                                  );
+
+                            return messageWidget;
+                          },
+                        ),
+                      ),
+                      ChatInputBox(
+                        onSend: (text) =>
+                            _handleSendMessage(text, currentUserId),
+                        onAttachFile: _handleAttachFile,
+                        isSending: state.isSending,
+                      ),
+                    ],
+                  ),
+          );
+        },
+      ),
     );
   }
 }

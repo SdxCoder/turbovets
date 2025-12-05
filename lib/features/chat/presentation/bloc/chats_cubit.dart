@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -5,28 +7,26 @@ import 'package:turbovetschat/config/routes/app_router.dart';
 import 'package:turbovetschat/features/agents/domain/entities/agent.dart';
 
 import '../../../../core/errors/result.dart';
+import '../../domain/entities/chat.dart';
 import '../../domain/usecases/create_chat.dart';
-import '../../domain/usecases/get_chats.dart';
+import '../../domain/usecases/watch_chats.dart';
 import 'chats_state.dart';
 
 @injectable
 class ChatsCubit extends Cubit<ChatsState> {
-  ChatsCubit(this._createChat, this._getChats) : super(ChatsState.initial());
+  ChatsCubit(this._createChat, this._watchChats) : super(ChatsState.initial()) {
+    _startWatchingChats();
+  }
 
   final CreateChat _createChat;
-  final GetChats _getChats;
+  final WatchChats _watchChats;
+  StreamSubscription<List<Chat>>? _chatsSubscription;
 
-  Future<void> loadChats() async {
-    emit(state.copyWith(isLoading: true, failure: null));
-    final result = await _getChats();
-    emit(state.copyWith(isLoading: false));
-
-    switch (result) {
-      case Success(:final data):
-        emit(state.copyWith(chats: data, isLoading: false, failure: null));
-      case Error(:final failure):
-        emit(state.copyWith(failure: failure));
-    }
+  void _startWatchingChats() {
+    _chatsSubscription?.cancel();
+    _chatsSubscription = _watchChats().listen((chats) {
+      emit(state.copyWith(chats: chats, failure: null));
+    });
   }
 
   Future<void> createChat({
@@ -40,10 +40,15 @@ class ChatsCubit extends Cubit<ChatsState> {
     switch (result) {
       case Success(:final data):
         router.pop();
-        await loadChats();
         router.push(MessagesRoute(chatId: data.id));
       case Error(:final failure):
         emit(state.copyWith(failure: failure));
     }
+  }
+
+  @override
+  Future<void> close() {
+    _chatsSubscription?.cancel();
+    return super.close();
   }
 }

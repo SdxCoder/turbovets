@@ -53,6 +53,18 @@ class FailureMessageMapper {
         title: 'Failed to Start Chat',
         message: 'Failed to start chat. Please try again',
       ),
+      FailedToSendMessageFailure() => (
+        title: 'Failed to Send Message',
+        message: 'Failed to send message. Please try again',
+      ),
+      FailedToGetMessagesFailure() => (
+        title: 'Failed to Get Messages',
+        message: 'Failed to get messages. Please try again',
+      ),
+      NoImagesSelectedFailure() => (
+        title: 'No Images Selected',
+        message: 'Please select at least one image',
+      ),
       UnknownFailure(:final code) => (
         title: 'Unknown Error',
         message: code ?? 'An unexpected error occurred. Please try again',

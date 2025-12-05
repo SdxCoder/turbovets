@@ -28,11 +28,11 @@ class ChatListItem extends StatelessWidget {
         child: Row(
           spacing: Spacing.md,
           children: [
-            NetworkImageWidget(imageUrl: chat.agent.imageUrl),
+            ClipOval(child: NetworkImageWidget(imageUrl: chat.agent.imageUrl)),
             Expanded(
               child: ListItemContentWidget(
                 title: chat.agent.name,
-                subtitle: chat.lastMessageTimestamp != null
+                subtitle: chat.lastMessageTimestamp.isValid
                     ? 'Tap to view messages'
                     : 'Start a new chat',
               ),
@@ -51,20 +51,19 @@ class ChatListItem extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (chat.lastMessageTimestamp != null) ...[
+                    if (chat.lastMessageTimestamp.isValid) ...[
                       Icon(
-                        chat.isRead ? Icons.done_all : Icons.done,
+                        Icons.done_all,
                         size: 16,
                         color: chat.isRead
                             ? Theme.of(context).colorScheme.primary
                             : Theme.of(context).colorScheme.secondary,
                       ),
                     ],
-                    if (chat.lastMessageTimestamp != null) ...[
+                    if (chat.lastMessageTimestamp.isValid) ...[
                       const SizedBox(width: Spacing.xs),
                       TimestampWidget(
-                        isoDateString: chat.lastMessageTimestamp!
-                            .toIso8601String(),
+                        isoDateString: chat.lastMessageTimestamp.value,
                       ),
                     ],
                   ],

@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 
 part '../../features/auth/domain/repositories/auth_failures.dart';
 part '../../features/chat/domain/repositories/chat_failures.dart';
+part '../../features/messages/domain/repositories/messages_failures.dart';
 
 /// Base class for all failures in the app
 /// Uses sealed classes for exhaustive pattern matching

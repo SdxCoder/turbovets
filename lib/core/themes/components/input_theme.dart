@@ -22,7 +22,7 @@ final InputDecorationTheme appInputTheme = InputDecorationTheme(
   ),
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(Radii.md),
-    borderSide: BorderSide(width: 2, color: lightColorScheme.secondary),
+    borderSide: BorderSide(width: 0.5, color: lightColorScheme.secondary),
   ),
   errorBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(Radii.md),
@@ -30,7 +30,7 @@ final InputDecorationTheme appInputTheme = InputDecorationTheme(
   ),
   focusedErrorBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(Radii.md),
-    borderSide: BorderSide(width: 2, color: lightColorScheme.error),
+    borderSide: BorderSide(width: 1, color: lightColorScheme.error),
   ),
   contentPadding: const EdgeInsets.symmetric(
     horizontal: Spacing.md,
@@ -46,7 +46,7 @@ final InputDecorationTheme appInputThemeDark = appInputTheme.copyWith(
   ),
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(Radii.md),
-    borderSide: BorderSide(width: 2, color: darkColorScheme.secondary),
+    borderSide: BorderSide(width: 0.5, color: darkColorScheme.secondary),
   ),
   errorBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(Radii.md),
@@ -54,6 +54,6 @@ final InputDecorationTheme appInputThemeDark = appInputTheme.copyWith(
   ),
   focusedErrorBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(Radii.md),
-    borderSide: BorderSide(width: 2, color: darkColorScheme.error),
+    borderSide: BorderSide(width: 1, color: darkColorScheme.error),
   ),
 );

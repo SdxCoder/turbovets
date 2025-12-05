@@ -34,8 +34,18 @@ import '../../features/chat/data/repositories/chat_repository_impl.dart'
     as _i504;
 import '../../features/chat/domain/repositories/chat_repository.dart' as _i420;
 import '../../features/chat/domain/usecases/create_chat.dart' as _i985;
-import '../../features/chat/domain/usecases/get_chats.dart' as _i197;
+import '../../features/chat/domain/usecases/watch_chats.dart' as _i381;
 import '../../features/chat/presentation/bloc/chats_cubit.dart' as _i949;
+import '../../features/messages/data/repositories/message_repository_impl.dart'
+    as _i514;
+import '../../features/messages/domain/repositories/message_repository.dart'
+    as _i28;
+import '../../features/messages/domain/usecases/get_messages.dart' as _i15;
+import '../../features/messages/domain/usecases/mark_messages_as_read.dart'
+    as _i20;
+import '../../features/messages/domain/usecases/send_message.dart' as _i162;
+import '../../features/messages/domain/usecases/watch_messages.dart' as _i787;
+import '../../features/messages/presentation/bloc/messages_cubit.dart' as _i967;
 import '../../features/splash/presentation/bloc/splash_cubit.dart' as _i955;
 import 'injection.dart' as _i464;
 
@@ -48,6 +58,18 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
     gh.lazySingleton<_i498.HiveService>(() => registerModule.hiveService);
+    gh.lazySingleton<_i28.MessageRepository>(
+      () => _i514.MessageRepositoryImpl(gh<_i498.HiveService>()),
+    );
+    gh.factory<_i20.MarkMessagesAsRead>(
+      () => _i20.MarkMessagesAsRead(gh<_i28.MessageRepository>()),
+    );
+    gh.factory<_i162.SendMessage>(
+      () => _i162.SendMessage(gh<_i28.MessageRepository>()),
+    );
+    gh.factory<_i787.WatchMessages>(
+      () => _i787.WatchMessages(gh<_i28.MessageRepository>()),
+    );
     gh.lazySingleton<_i420.ChatRepository>(
       () => _i504.ChatRepositoryImpl(gh<_i498.HiveService>()),
     );
@@ -63,8 +85,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1025.InitializeAgents>(
       () => _i1025.InitializeAgents(gh<_i575.AgentRepository>()),
     );
-    gh.factory<_i197.GetChats>(
-      () => _i197.GetChats(gh<_i420.ChatRepository>()),
+    gh.factory<_i381.WatchChats>(
+      () => _i381.WatchChats(gh<_i420.ChatRepository>()),
+    );
+    gh.factory<_i15.GetChatById>(
+      () => _i15.GetChatById(gh<_i420.ChatRepository>()),
     );
     gh.factory<_i985.CreateChat>(
       () => _i985.CreateChat(
@@ -81,7 +106,15 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i480.Register(gh<_i787.AuthRepository>()),
     );
     gh.factory<_i949.ChatsCubit>(
-      () => _i949.ChatsCubit(gh<_i985.CreateChat>(), gh<_i197.GetChats>()),
+      () => _i949.ChatsCubit(gh<_i985.CreateChat>(), gh<_i381.WatchChats>()),
+    );
+    gh.factory<_i967.MessagesCubit>(
+      () => _i967.MessagesCubit(
+        gh<_i15.GetChatById>(),
+        gh<_i162.SendMessage>(),
+        gh<_i787.WatchMessages>(),
+        gh<_i20.MarkMessagesAsRead>(),
+      ),
     );
     gh.factory<_i396.AgentCubit>(
       () => _i396.AgentCubit(

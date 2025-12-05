@@ -79,27 +79,38 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Result<List<Chat>>> getChats() async {
+  Stream<List<Chat>> watchChats() {
     try {
-      final chatsJson = _hiveService.readListMap<ChatDto>(
-        _chatRecordsKey,
-        fromJson: ChatDto.fromJson,
-      );
+      return _hiveService
+          .watchListMap<ChatDto>(_chatRecordsKey, fromJson: ChatDto.fromJson)
+          .map((chatsDto) {
+            final chats = chatsDto
+                .map((dto) => dto.toDomain())
+                .where((chat) => chat.isValid)
+                .toList();
 
-      if (chatsJson == null) {
-        return Result.success([]);
-      }
+            chats.sort((a, b) {
+              if (!a.lastMessageTimestamp.isValid &&
+                  !b.lastMessageTimestamp.isValid) {
+                return 0;
+              }
+              if (!a.lastMessageTimestamp.isValid) return 1;
+              if (!b.lastMessageTimestamp.isValid) return -1;
 
-      final chats = chatsJson
-          .map((dto) => dto.toDomain())
-          .where((chat) => chat.isValid)
-          .toList();
+              final aDate = DateTime.tryParse(a.lastMessageTimestamp.value);
+              final bDate = DateTime.tryParse(b.lastMessageTimestamp.value);
 
-      return Result.success(chats);
-    } on CacheReadException {
-      return Result.failure(CacheReadFailure());
+              if (aDate == null && bDate == null) return 0;
+              if (aDate == null) return 1;
+              if (bDate == null) return -1;
+
+              return bDate.compareTo(aDate);
+            });
+
+            return chats;
+          });
     } catch (e) {
-      return Result.failure(UnknownFailure());
+      return Stream.value([]);
     }
   }
 
