@@ -49,13 +49,9 @@ class FailureMessageMapper {
         title: 'Chat Not Found',
         message: 'Chat not found. Please try again',
       ),
-      AgentNotFoundFailure() => (
-        title: 'Agent Not Found',
-        message: 'Agent not found. Please try again',
-      ),
-      AgentsNotInitializedFailure() => (
-        title: 'Agents Not Initialized',
-        message: 'Agents have not been initialized. Please try again',
+      FailedToStartChatFailure() => (
+        title: 'Failed to Start Chat',
+        message: 'Failed to start chat. Please try again',
       ),
       UnknownFailure(:final code) => (
         title: 'Unknown Error',

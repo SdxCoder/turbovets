@@ -5,6 +5,7 @@ import '../../../../core/errors/result.dart';
 import '../../../../core/services/hive/exceptions.dart';
 import '../../../../core/services/hive/hive_content.dart';
 import '../../../../core/services/hive/hive_service.dart';
+import '../../../../core/utils/fake_network_delay.dart';
 import '../../domain/entities/agent.dart';
 import '../../domain/repositories/agent_repository.dart';
 import '../dtos/agent_dto.dart';
@@ -37,7 +38,7 @@ class AgentRepositoryImpl implements AgentRepository {
   @override
   Future<Result<List<Agent>>> getAgents() async {
     try {
-      await Future.delayed(const Duration(seconds: 2));
+      await FakeNetworkDelay.delay();
       final agentsJson = _hiveService.readListMap<AgentDto>(
         _agentsRecordKey,
         fromJson: AgentDto.fromJson,
@@ -47,7 +48,10 @@ class AgentRepositoryImpl implements AgentRepository {
         return Result.success([]);
       }
 
-      final agents = agentsJson.map((dto) => dto.toDomain()).toList();
+      final agents = agentsJson
+          .map((dto) => dto.toDomain())
+          .where((agent) => agent.isValid)
+          .toList();
 
       return Result.success(agents);
     } on CacheReadException {

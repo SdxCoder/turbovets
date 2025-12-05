@@ -1,22 +1,25 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../config/routes/app_router.dart';
 import '../../../../core/themes/spacings.dart';
 import '../../../../core/widgets/badge_widget.dart';
 import '../../../../core/widgets/list_item_content_widget.dart';
 import '../../../../core/widgets/network_image_widget.dart';
 import '../../../../core/widgets/timestamp_widget.dart';
-import '../../../../mock_data/chat.dart';
+import '../../domain/entities/chat.dart';
 
 class ChatListItem extends StatelessWidget {
-  const ChatListItem({super.key, required this.chat, required this.onTap});
+  const ChatListItem({super.key, required this.chat});
 
-  final MockChat chat;
-  final VoidCallback onTap;
+  final Chat chat;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        context.router.push(MessagesRoute(chatId: chat.id));
+      },
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: Spacing.md,
@@ -25,8 +28,15 @@ class ChatListItem extends StatelessWidget {
         child: Row(
           spacing: Spacing.md,
           children: [
-            NetworkImageWidget(imageUrl: chat.imageUrl),
-            ListItemContentWidget(title: chat.name, subtitle: chat.lastMessage),
+            NetworkImageWidget(imageUrl: chat.agent.imageUrl),
+            Expanded(
+              child: ListItemContentWidget(
+                title: chat.agent.name,
+                subtitle: chat.lastMessageTimestamp != null
+                    ? 'Tap to view messages'
+                    : 'Start a new chat',
+              ),
+            ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
@@ -41,15 +51,22 @@ class ChatListItem extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      chat.isRead ? Icons.done_all : Icons.done,
-                      size: 16,
-                      color: chat.isRead
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.secondary,
-                    ),
-                    const SizedBox(width: Spacing.xs),
-                    TimestampWidget(isoDateString: chat.timestamp),
+                    if (chat.lastMessageTimestamp != null) ...[
+                      Icon(
+                        chat.isRead ? Icons.done_all : Icons.done,
+                        size: 16,
+                        color: chat.isRead
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.secondary,
+                      ),
+                    ],
+                    if (chat.lastMessageTimestamp != null) ...[
+                      const SizedBox(width: Spacing.xs),
+                      TimestampWidget(
+                        isoDateString: chat.lastMessageTimestamp!
+                            .toIso8601String(),
+                      ),
+                    ],
                   ],
                 ),
               ],

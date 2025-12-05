@@ -1,5 +1,7 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:turbovetschat/features/chat/presentation/bloc/chats_cubit.dart';
 
 import '../../../../core/errors/failure_message_mapper.dart';
 import '../../../../core/themes/spacings.dart';
@@ -10,11 +12,22 @@ import '../widgets/agent_list_item.dart';
 
 class StartChatDialog extends StatelessWidget {
   final AgentCubit agentCubit;
-  const StartChatDialog({super.key, required this.agentCubit});
+  final ChatsCubit chatsCubit;
+  const StartChatDialog({
+    super.key,
+    required this.agentCubit,
+    required this.chatsCubit,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(value: agentCubit, child: StartChatDialogView());
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: agentCubit),
+        BlocProvider.value(value: chatsCubit),
+      ],
+      child: StartChatDialogView(),
+    );
   }
 }
 
@@ -23,7 +36,49 @@ class StartChatDialogView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AgentCubit, AgentState>(
+    final isCreatingChat = context.select(
+      (ChatsCubit chatsCubit) => chatsCubit.state.isCreatingChat,
+    );
+    final agents = context.select(
+      (AgentCubit agentCubit) => agentCubit.state.agents,
+    );
+    final isLoading = context.select(
+      (AgentCubit agentCubit) => agentCubit.state.isLoading,
+    );
+
+    if (isLoading || isCreatingChat) {
+      return const BaseActionDialogWidget(
+        padding: EdgeInsets.all(Spacing.lg),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (agents.isEmpty) {
+      return BaseActionDialogWidget(
+        padding: const EdgeInsets.all(Spacing.lg),
+        actionText: 'Reload',
+        onAction: () {
+          context.read<AgentCubit>().loadAgents();
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'No agents available',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: Spacing.md),
+            Text(
+              'Please try again later',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return BlocListener<AgentCubit, AgentState>(
+      listenWhen: (previous, current) => current.failure != null,
       listener: (context, state) {
         if (state.failure != null) {
           final message = FailureMessageMapper.mapFailureToMessage(
@@ -34,75 +89,45 @@ class StartChatDialogView extends StatelessWidget {
           ).showSnackBar(SnackBar(content: Text(message.message)));
         }
       },
-      builder: (context, state) {
-        if (state.isLoading) {
-          return const BaseActionDialogWidget(
-            padding: EdgeInsets.all(Spacing.lg),
-            child: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        if (state.agents.isEmpty) {
-          return BaseActionDialogWidget(
-            padding: const EdgeInsets.all(Spacing.lg),
-            actionText: 'Reload',
-            onAction: () {
-              context.read<AgentCubit>().loadAgents();
-            },
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'No agents available',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: Spacing.md),
-                Text(
-                  'Please try again later',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
+      child: BaseActionDialogWidget(
+        padding: EdgeInsets.zero,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(Spacing.lg),
+              child: Text(
+                'Select an agent',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
             ),
-          );
-        }
-
-        return BaseActionDialogWidget(
-          padding: EdgeInsets.zero,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(Spacing.lg),
-                child: Text(
-                  'Select an agent',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: agents.length,
+              separatorBuilder: (context, index) => Divider(
+                height: 1,
+                thickness: 1,
+                color: Theme.of(context).colorScheme.outline,
               ),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: state.agents.length,
-                separatorBuilder: (context, index) => Divider(
-                  height: 1,
-                  thickness: 1,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-                itemBuilder: (context, index) {
-                  final agent = state.agents[index];
-                  return AgentListItem(
-                    agent: agent,
-                    onTap: () {
-                      // TODO: Navigate to chat screen
-                    },
-                  );
-                },
-              ),
-              const SizedBox(height: Spacing.lg),
-            ],
-          ),
-        );
-      },
+              itemBuilder: (context, index) {
+                final agent = agents[index];
+                return AgentListItem(
+                  agent: agent,
+                  onTap: () {
+                    context.read<ChatsCubit>().createChat(
+                      agent: agent,
+                      router: context.router,
+                    );
+                  },
+                );
+              },
+            ),
+            const SizedBox(height: Spacing.lg),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -24,9 +24,11 @@ class AgentListItem extends StatelessWidget {
           children: [
             NetworkImageWidget(imageUrl: agent.imageUrl),
             const SizedBox(width: Spacing.md),
-            ListItemContentWidget(
-              title: agent.name,
-              subtitle: agent.description,
+            Expanded(
+              child: ListItemContentWidget(
+                title: agent.name,
+                subtitle: agent.description,
+              ),
             ),
             Icon(Icons.chevron_right),
           ],

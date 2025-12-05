@@ -43,6 +43,57 @@ class LoginRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [MessagesScreen]
+class MessagesRoute extends PageRouteInfo<MessagesRouteArgs> {
+  MessagesRoute({
+    Key? key,
+    required String chatId,
+    List<PageRouteInfo>? children,
+  }) : super(
+         MessagesRoute.name,
+         args: MessagesRouteArgs(key: key, chatId: chatId),
+         rawPathParams: {'chatId': chatId},
+         initialChildren: children,
+       );
+
+  static const String name = 'MessagesRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final pathParams = data.inheritedPathParams;
+      final args = data.argsAs<MessagesRouteArgs>(
+        orElse: () => MessagesRouteArgs(chatId: pathParams.getString('chatId')),
+      );
+      return MessagesScreen(key: args.key, chatId: args.chatId);
+    },
+  );
+}
+
+class MessagesRouteArgs {
+  const MessagesRouteArgs({this.key, required this.chatId});
+
+  final Key? key;
+
+  final String chatId;
+
+  @override
+  String toString() {
+    return 'MessagesRouteArgs{key: $key, chatId: $chatId}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! MessagesRouteArgs) return false;
+    return key == other.key && chatId == other.chatId;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ chatId.hashCode;
+}
+
+/// generated route for
 /// [RegisterScreen]
 class RegisterRoute extends PageRouteInfo<void> {
   const RegisterRoute({List<PageRouteInfo>? children})

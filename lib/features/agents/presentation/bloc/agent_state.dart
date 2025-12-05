@@ -26,7 +26,7 @@ class AgentState extends Equatable {
     return AgentState(
       agents: agents ?? this.agents,
       isLoading: isLoading ?? this.isLoading,
-      failure: failure ?? this.failure,
+      failure: failure,
     );
   }
 

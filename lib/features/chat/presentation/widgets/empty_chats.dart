@@ -1,22 +1,12 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:turbovetschat/config/routes/app_router.dart';
-import 'package:turbovetschat/features/agents/presentation/bloc/agent_cubit.dart';
 
 import '../../../../core/themes/spacings.dart';
 import '../../../../core/utils/asset_names.dart';
-import '../../../agents/presentation/dialogs/start_chat_dialog.dart';
 
 class EmptyChats extends StatelessWidget {
-  const EmptyChats({super.key});
-
-  void _handleStartChat(BuildContext context) {
-    context.router.openDialog(
-      child: StartChatDialog(agentCubit: context.read<AgentCubit>()),
-    );
-  }
+  final VoidCallback onStartChat;
+  const EmptyChats({super.key, required this.onStartChat});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +33,7 @@ class EmptyChats extends StatelessWidget {
             ),
             const SizedBox(height: Spacing.md),
             TextButton(
-              onPressed: () => _handleStartChat(context),
+              onPressed: onStartChat,
               child: const Text('Start a chat'),
             ),
           ],

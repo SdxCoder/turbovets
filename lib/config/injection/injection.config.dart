@@ -33,6 +33,9 @@ import '../../features/auth/presentation/bloc/register_cubit.dart' as _i98;
 import '../../features/chat/data/repositories/chat_repository_impl.dart'
     as _i504;
 import '../../features/chat/domain/repositories/chat_repository.dart' as _i420;
+import '../../features/chat/domain/usecases/create_chat.dart' as _i985;
+import '../../features/chat/domain/usecases/get_chats.dart' as _i197;
+import '../../features/chat/presentation/bloc/chats_cubit.dart' as _i949;
 import '../../features/splash/presentation/bloc/splash_cubit.dart' as _i955;
 import 'injection.dart' as _i464;
 
@@ -60,6 +63,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1025.InitializeAgents>(
       () => _i1025.InitializeAgents(gh<_i575.AgentRepository>()),
     );
+    gh.factory<_i197.GetChats>(
+      () => _i197.GetChats(gh<_i420.ChatRepository>()),
+    );
+    gh.factory<_i985.CreateChat>(
+      () => _i985.CreateChat(
+        gh<_i420.ChatRepository>(),
+        gh<_i787.AuthRepository>(),
+      ),
+    );
     gh.factory<_i111.GetCurrentUser>(
       () => _i111.GetCurrentUser(gh<_i787.AuthRepository>()),
     );
@@ -67,6 +79,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i597.Logout>(() => _i597.Logout(gh<_i787.AuthRepository>()));
     gh.factory<_i480.Register>(
       () => _i480.Register(gh<_i787.AuthRepository>()),
+    );
+    gh.factory<_i949.ChatsCubit>(
+      () => _i949.ChatsCubit(gh<_i985.CreateChat>(), gh<_i197.GetChats>()),
     );
     gh.factory<_i396.AgentCubit>(
       () => _i396.AgentCubit(

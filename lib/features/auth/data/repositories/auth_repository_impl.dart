@@ -4,12 +4,12 @@ import 'package:uuid/uuid.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/errors/result.dart';
 import '../../../../core/services/hive/index.dart';
+import '../../../../core/utils/fake_network_delay.dart';
 import '../../../../core/utils/password_hasher.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../dtos/auth_record_dto.dart';
 import '../dtos/user_dto.dart';
-import '../dtos/user_dto_extension.dart';
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
@@ -68,7 +68,7 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       await _setCurrentUser(userDto);
-      await Future.delayed(const Duration(seconds: 2));
+      await FakeNetworkDelay.delay();
       return Result.success(user);
     } on CacheReadException {
       return Result.failure(CacheReadFailure());
@@ -111,7 +111,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _addAuthRecord(authRecord);
       await _addUserRecord(userDto);
       await _setCurrentUser(userDto);
-      await Future.delayed(const Duration(seconds: 2));
+      await FakeNetworkDelay.delay();
 
       return Result.success(userDto.toDomain());
     } on CacheWriteException {
@@ -124,7 +124,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<User>> getCurrentUser() async {
     try {
-      await Future.delayed(const Duration(seconds: 2));
+      await FakeNetworkDelay.delay();
       final currentUser = _hiveService.readMap<UserDto>(
         _currentUserKey,
         fromJson: UserDto.fromJson,
@@ -133,7 +133,12 @@ class AuthRepositoryImpl implements AuthRepository {
         return Result.success(User.empty());
       }
 
-      return Result.success(currentUser.toDomain());
+      final user = currentUser.toDomain();
+      if (!user.isValid) {
+        return Result.failure(const UserDataNotFoundFailure());
+      }
+
+      return Result.success(user);
     } on CacheReadException {
       return Result.failure(CacheReadFailure());
     } catch (e) {

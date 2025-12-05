@@ -42,7 +42,7 @@ class RegisterState extends Equatable {
       email: email ?? this.email,
       password: password ?? this.password,
       isLoading: isLoading ?? this.isLoading,
-      failure: failure ?? this.failure,
+      failure: failure,
     );
   }
 

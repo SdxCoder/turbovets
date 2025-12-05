@@ -5,6 +5,7 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/welcome_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/messages/presentation/screens/messages_screen.dart';
 
 part 'app_router.gr.dart';
 
@@ -16,6 +17,7 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: LoginRoute.page),
     AutoRoute(page: RegisterRoute.page),
     AutoRoute(page: HomeRoute.page),
+    AutoRoute(page: MessagesRoute.page, path: '/messages/:chatId'),
   ];
 }
 

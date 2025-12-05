@@ -12,10 +12,6 @@ final class ChatNotFoundFailure extends ChatFailure {
   const ChatNotFoundFailure() : super(code: 'CHAT_NOT_FOUND');
 }
 
-final class AgentNotFoundFailure extends ChatFailure {
-  const AgentNotFoundFailure() : super(code: 'AGENT_NOT_FOUND');
-}
-
-final class AgentsNotInitializedFailure extends ChatFailure {
-  const AgentsNotInitializedFailure() : super(code: 'AGENTS_NOT_INITIALIZED');
+final class FailedToStartChatFailure extends ChatFailure {
+  const FailedToStartChatFailure() : super(code: 'FAILED_TO_START_CHAT');
 }

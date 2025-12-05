@@ -3,10 +3,9 @@ import 'package:json_annotation/json_annotation.dart';
 import '../../../../core/utils/extensions/int_extensions.dart';
 import '../../../../core/utils/extensions/string_extensions.dart';
 import '../../../agents/data/dtos/agent_dto.dart';
-import '../../../auth/data/dtos/user_dto.dart';
-import '../../../auth/data/dtos/user_dto_extension.dart';
-import '../../../auth/domain/entities/user.dart';
 import '../../../agents/domain/entities/agent.dart';
+import '../../../auth/data/dtos/user_dto.dart';
+import '../../../auth/domain/entities/user.dart';
 import '../../domain/entities/chat.dart';
 
 part 'chat_dto.g.dart';

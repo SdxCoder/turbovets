@@ -7,8 +7,11 @@ import '../../../../core/errors/result.dart';
 import '../../../../core/services/hive/exceptions.dart';
 import '../../../../core/services/hive/hive_content.dart';
 import '../../../../core/services/hive/hive_service.dart';
+import '../../../../core/utils/fake_network_delay.dart';
 import '../../../agents/data/dtos/agent_dto.dart';
+import '../../../agents/domain/entities/agent.dart';
 import '../../../auth/data/dtos/user_dto.dart';
+import '../../../auth/domain/entities/user.dart';
 import '../../domain/entities/chat.dart';
 import '../../domain/repositories/chat_repository.dart';
 import '../dtos/chat_dto.dart';
@@ -18,41 +21,17 @@ class ChatRepositoryImpl implements ChatRepository {
   final HiveService _hiveService;
   ChatRepositoryImpl(this._hiveService);
 
-  static const String _agentsRecordKey = 'agents_record';
   static const String _chatRecordsKey = 'chat_records';
-  static const String _currentUserKey = 'current_user';
 
   @override
   Future<Result<Chat>> createChat({
-    required String userId,
-    required String agentId,
+    required Agent agent,
+    required User user,
   }) async {
     try {
-      final userDto = _hiveService.readMap<UserDto>(
-        _currentUserKey,
-        fromJson: UserDto.fromJson,
-      );
-
-      if (userDto == null) {
-        return Result.failure(CacheReadFailure());
-      }
-
-      final agentsJson = _hiveService.readListMap<AgentDto>(
-        _agentsRecordKey,
-        fromJson: AgentDto.fromJson,
-      );
-
-      if (agentsJson == null || agentsJson.isEmpty) {
-        return Result.failure(const AgentsNotInitializedFailure());
-      }
-
-      final agentDto = agentsJson.firstWhereOrNull(
-        (agent) => agent.id == agentId,
-      );
-
-      if (agentDto == null) {
-        return Result.failure(const AgentNotFoundFailure());
-      }
+      await FakeNetworkDelay.delay();
+      final agentDto = agent.toDto();
+      final userDto = user.toDto();
 
       final existingChatsJson =
           _hiveService.readListMap<ChatDto>(
@@ -62,7 +41,7 @@ class ChatRepositoryImpl implements ChatRepository {
           [];
 
       final chatExists = existingChatsJson.any(
-        (chat) => chat.user?.id == userDto.id && chat.agent?.id == agentId,
+        (chat) => chat.user?.id == userDto.id && chat.agent?.id == agentDto.id,
       );
 
       if (chatExists) {
@@ -111,7 +90,10 @@ class ChatRepositoryImpl implements ChatRepository {
         return Result.success([]);
       }
 
-      final chats = chatsJson.map((dto) => dto.toDomain()).toList();
+      final chats = chatsJson
+          .map((dto) => dto.toDomain())
+          .where((chat) => chat.isValid)
+          .toList();
 
       return Result.success(chats);
     } on CacheReadException {
@@ -133,12 +115,46 @@ class ChatRepositoryImpl implements ChatRepository {
         return Result.failure(const ChatNotFoundFailure());
       }
 
-      final chatDto = chatsJson.firstWhere(
-        (chat) => chat.id == chatId,
-        orElse: () => throw Exception('Chat not found'),
+      final chatDto = chatsJson.firstWhereOrNull((chat) => chat.id == chatId);
+
+      final chat = chatDto?.toDomain();
+
+      if (chat == null || !chat.isValid) {
+        return Result.failure(const ChatNotFoundFailure());
+      }
+
+      return Result.success(chat);
+    } on CacheReadException {
+      return Result.failure(CacheReadFailure());
+    } catch (e) {
+      return Result.failure(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Result<Chat>> getChatByUserAndAgentId(
+    String userId,
+    String agentId,
+  ) async {
+    try {
+      final chatsJson = _hiveService.readListMap<ChatDto>(
+        _chatRecordsKey,
+        fromJson: ChatDto.fromJson,
       );
 
-      final chat = chatDto.toDomain();
+      if (chatsJson == null) {
+        return Result.failure(const ChatNotFoundFailure());
+      }
+
+      final chatDto = chatsJson.firstWhereOrNull(
+        (chat) => chat.agent?.id == agentId && chat.user?.id == userId,
+      );
+
+      final chat = chatDto?.toDomain();
+
+      if (chat == null || !chat.isValid) {
+        return Result.failure(const ChatNotFoundFailure());
+      }
 
       return Result.success(chat);
     } on CacheReadException {
