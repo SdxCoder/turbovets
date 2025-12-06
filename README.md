@@ -7,7 +7,7 @@ A Flutter messaging application with intelligent auto-reply agent, real-time cha
 ```
 /
 ├── flutter_app/       # Flutter messaging interface
-├── webpage/           # Angular + Tailwind Internal Tools Dashboard (Coming soon)
+├── webpage/           # Angular + Tailwind Internal Tools Dashboard
 └── README.md          # This file
 ```
 
