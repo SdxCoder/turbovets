@@ -43,7 +43,7 @@ A Flutter messaging application with intelligent auto-reply agent, real-time cha
 ## Features
 
 ### 🔐 Authentication
-- **Login/Register**: Create account or sign in with email and password
+- **Login/Register**: Create account or sign in with email and password 
 - **User Profile**: View your name and email in settings
 
 ### 💬 Chat
@@ -82,32 +82,7 @@ A Flutter messaging application with intelligent auto-reply agent, real-time cha
    - Tap attachment icon to send images
    - Try: "send me an image" or "3 pictures" to test auto-reply intelligence
 4. **View Chats**: Navigate back to see all your conversations sorted by latest message
-5. **Settings**: Tap profile icon → Change theme or logout
-
-## Architecture
-
-Built with **Clean Architecture** principles:
-- **Presentation Layer**: BLoC for state management, AutoRoute for navigation
-- **Domain Layer**: Pure Dart business logic with use cases
-- **Data Layer**: Hive for local storage, DTOs for data transfer
-
-## Tech Stack
-
-- **State Management**: flutter_bloc
-- **Dependency Injection**: get_it + injectable
-- **Navigation**: auto_route
-- **Local Storage**: Hive
-- **Image Handling**: image_picker, cached_network_image
-
-## Platform-Specific Notes
-
-### iOS
-- Photo library permission is configured in `Info.plist`
-- WebView support enabled (for future Internal Tools Dashboard)
-
-### Android
-- Network permissions configured for WebView access
-- Use `http://10.0.2.2:PORT` for localhost access in emulator
+5. **Settings**: Tap profile icon → Change theme, dashboard IP settings or logout
 
 ## Internal Tools Dashboard (WebView)
 
@@ -236,18 +211,6 @@ The Dashboard screen includes helpful controls in the app bar:
 - ✅ Changes apply immediately - Dashboard reloads automatically
 - ✅ BLoC-managed state with SettingsCubit
 - ✅ Settings persist across app launches
-
-### Platform Configuration:
-
-**Android**:
-- ✅ `INTERNET` permission (`android/app/src/main/AndroidManifest.xml`)
-- ✅ Network Security Config to allow HTTP cleartext traffic (`android/app/src/main/res/xml/network_security_config.xml`)
-- ✅ `usesCleartextTraffic="true"` for development HTTP connections
-- **Note**: Android blocks HTTP by default; this config allows localhost/local network access
-
-**iOS** (`ios/Runner/Info.plist`):
-- ✅ `NSAllowsLocalNetworking` enabled for localhost access
-- ✅ `NSAllowsArbitraryLoadsInWebContent` enabled for HTTP content
 
 ### Troubleshooting:
 
