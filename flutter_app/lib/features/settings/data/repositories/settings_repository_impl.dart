@@ -15,6 +15,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
 
   static const String _currentUserKey = 'current_user';
   static const String _themeModeKey = 'theme_mode';
+  static const String _dashboardServerUrlKey = 'dashboard_server_url';
 
   @override
   Future<Result<User>> getCurrentUser() async {
@@ -77,6 +78,41 @@ class SettingsRepositoryImpl implements SettingsRepository {
       await _hiveService.save(
         HiveContent.string(key: _themeModeKey, value: themeMode),
       );
+      return Result.success(null);
+    } on CacheWriteException {
+      return Result.failure(CacheWriteFailure());
+    } catch (e) {
+      return Result.failure(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Result<String>> getDashboardServerUrl() async {
+    try {
+      final serverUrl = _hiveService.read<String>(_dashboardServerUrlKey);
+
+      if (serverUrl == null) {
+        return Result.success('');
+      }
+
+      return Result.success(serverUrl);
+    } on CacheReadException {
+      return Result.failure(CacheReadFailure());
+    } catch (e) {
+      return Result.failure(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Result<void>> setDashboardServerUrl(String url) async {
+    try {
+      if (url.isEmpty) {
+        await _hiveService.remove(_dashboardServerUrlKey);
+      } else {
+        await _hiveService.save(
+          HiveContent.string(key: _dashboardServerUrlKey, value: url),
+        );
+      }
       return Result.success(null);
     } on CacheWriteException {
       return Result.failure(CacheWriteFailure());

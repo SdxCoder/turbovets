@@ -56,8 +56,12 @@ import '../../features/settings/data/repositories/settings_repository_impl.dart'
     as _i955;
 import '../../features/settings/domain/repositories/settings_repository.dart'
     as _i674;
+import '../../features/settings/domain/usecases/get_dashboard_server_url.dart'
+    as _i368;
 import '../../features/settings/domain/usecases/get_theme_mode.dart' as _i867;
 import '../../features/settings/domain/usecases/logout_user.dart' as _i382;
+import '../../features/settings/domain/usecases/set_dashboard_server_url.dart'
+    as _i26;
 import '../../features/settings/domain/usecases/set_theme_mode.dart' as _i743;
 import '../../features/settings/presentation/bloc/settings_cubit.dart' as _i819;
 import '../../features/splash/presentation/bloc/splash_cubit.dart' as _i955;
@@ -97,21 +101,20 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i97.AutoReplyAgentService>(),
       ),
     );
+    gh.factory<_i368.GetDashboardServerUrl>(
+      () => _i368.GetDashboardServerUrl(gh<_i674.SettingsRepository>()),
+    );
     gh.factory<_i867.GetThemeMode>(
       () => _i867.GetThemeMode(gh<_i674.SettingsRepository>()),
     );
     gh.factory<_i382.LogoutUser>(
       () => _i382.LogoutUser(gh<_i674.SettingsRepository>()),
     );
+    gh.factory<_i26.SetDashboardServerUrl>(
+      () => _i26.SetDashboardServerUrl(gh<_i674.SettingsRepository>()),
+    );
     gh.factory<_i743.SetThemeMode>(
       () => _i743.SetThemeMode(gh<_i674.SettingsRepository>()),
-    );
-    gh.factory<_i819.SettingsCubit>(
-      () => _i819.SettingsCubit(
-        gh<_i867.GetThemeMode>(),
-        gh<_i743.SetThemeMode>(),
-        gh<_i382.LogoutUser>(),
-      ),
     );
     gh.factory<_i744.GetAgents>(
       () => _i744.GetAgents(gh<_i575.AgentRepository>()),
@@ -138,6 +141,15 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i985.CreateChat(
         gh<_i420.ChatRepository>(),
         gh<_i787.AuthRepository>(),
+      ),
+    );
+    gh.factory<_i819.SettingsCubit>(
+      () => _i819.SettingsCubit(
+        gh<_i867.GetThemeMode>(),
+        gh<_i743.SetThemeMode>(),
+        gh<_i368.GetDashboardServerUrl>(),
+        gh<_i26.SetDashboardServerUrl>(),
+        gh<_i382.LogoutUser>(),
       ),
     );
     gh.factory<_i111.GetCurrentUser>(

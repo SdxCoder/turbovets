@@ -6,4 +6,6 @@ abstract class SettingsRepository {
   Future<Result<void>> logout();
   Future<Result<String>> getThemeMode();
   Future<Result<void>> setThemeMode(String themeMode);
+  Future<Result<String>> getDashboardServerUrl();
+  Future<Result<void>> setDashboardServerUrl(String url);
 }

@@ -1,0 +1,134 @@
+<div class="p-4 md:p-6 h-full flex flex-col">
+    <!-- Header -->
+    <div class="mb-4 md:mb-6">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Knowledgebase Editor</h1>
+        <p class="text-sm md:text-base text-gray-600">Create and edit support articles using Markdown</p>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="mb-4 flex flex-wrap gap-2">
+        <button (click)="insertMarkdown('bold')"
+            class="px-2 md:px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-bold text-sm"
+            title="Bold">
+            B
+        </button>
+        <button (click)="insertMarkdown('italic')"
+            class="px-2 md:px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors italic text-sm"
+            title="Italic">
+            I
+        </button>
+        <button (click)="insertMarkdown('heading')"
+            class="px-2 md:px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-bold text-sm"
+            title="Heading">
+            H
+        </button>
+        <button (click)="insertMarkdown('list')"
+            class="px-2 md:px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            title="List">
+            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+        <button (click)="insertMarkdown('code')"
+            class="px-2 md:px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-mono text-sm"
+            title="Code">
+            &lt;/&gt;
+        </button>
+        <button (click)="insertMarkdown('link')"
+            class="px-2 md:px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            title="Link">
+            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+        </button>
+
+        <div class="flex-1"></div>
+
+        <!-- Mobile: Toggle between Edit and Preview -->
+        <button (click)="togglePreview()"
+            [class]="showPreview ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+            class="md:hidden px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+            {{ showPreview ? '✏️ Edit' : '👁️ Preview' }}
+        </button>
+
+        <!-- Desktop: Show/Hide Preview -->
+        <button (click)="togglePreview()"
+            [class]="showPreview ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+            class="hidden md:block px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+            {{ showPreview ? 'Hide Preview' : 'Show Preview' }}
+        </button>
+
+        <button (click)="saveArticle()"
+            class="px-3 md:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm">
+            Save
+        </button>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="saveMessage"
+        class="mb-4 p-3 md:p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg text-sm">
+        {{ saveMessage }}
+    </div>
+
+    <!-- Mobile: Editor OR Preview (toggle between them) -->
+    <div class="md:hidden flex-1 flex flex-col overflow-hidden min-h-0">
+        <!-- Editor (Mobile) -->
+        <div *ngIf="!showPreview" class="flex-1 flex flex-col bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-4 py-2 bg-gray-50 border-b border-gray-200 font-medium text-gray-700 text-sm">
+                Editor
+            </div>
+            <textarea id="editor" [(ngModel)]="content"
+                class="flex-1 p-3 font-mono text-xs resize-none focus:outline-none"
+                placeholder="Write your article here using Markdown...">
+      </textarea>
+        </div>
+
+        <!-- Preview (Mobile) -->
+        <div *ngIf="showPreview" class="flex-1 flex flex-col bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-4 py-2 bg-gray-50 border-b border-gray-200 font-medium text-gray-700 text-sm">
+                Preview
+            </div>
+            <div class="flex-1 p-3 overflow-auto prose prose-sm max-w-none text-sm"
+                [innerHTML]="renderMarkdown(content)">
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop: Editor AND Preview (side by side) -->
+    <div class="hidden md:flex flex-1 gap-4 overflow-hidden min-h-0">
+        <!-- Editor (Desktop) -->
+        <div class="flex-1 flex flex-col bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-4 py-2 bg-gray-50 border-b border-gray-200 font-medium text-gray-700 text-sm">
+                Editor
+            </div>
+            <textarea id="editor" [(ngModel)]="content"
+                class="flex-1 p-4 font-mono text-sm resize-none focus:outline-none"
+                placeholder="Write your article here using Markdown...">
+      </textarea>
+        </div>
+
+        <!-- Preview (Desktop) -->
+        <div *ngIf="showPreview" class="flex-1 flex flex-col bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-4 py-2 bg-gray-50 border-b border-gray-200 font-medium text-gray-700 text-sm">
+                Preview
+            </div>
+            <div class="flex-1 p-4 overflow-auto prose prose-sm max-w-none text-sm"
+                [innerHTML]="renderMarkdown(content)">
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Text -->
+    <div class="mt-4 text-xs md:text-sm text-gray-600">
+        <p><strong>Markdown Quick Reference:</strong></p>
+        <ul class="list-disc list-inside mt-2 space-y-1">
+            <li># Heading 1, ## Heading 2, ### Heading 3</li>
+            <li>**bold** or __bold__, *italic* or _italic_</li>
+            <li>[link text](url)</li>
+            <li>`inline code` or ```code block```</li>
+            <li>- List item or 1. Numbered list</li>
+            <li>> Blockquote</li>
+        </ul>
+    </div>
+</div>

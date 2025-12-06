@@ -5,25 +5,35 @@ import 'package:injectable/injectable.dart';
 import 'package:turbovetschat/config/routes/app_router.dart';
 
 import '../../../../core/errors/result.dart';
+import '../../domain/usecases/get_dashboard_server_url.dart';
 import '../../domain/usecases/get_theme_mode.dart';
 import '../../domain/usecases/logout_user.dart';
+import '../../domain/usecases/set_dashboard_server_url.dart';
 import '../../domain/usecases/set_theme_mode.dart';
 import 'settings_state.dart';
 
 @injectable
 class SettingsCubit extends Cubit<SettingsState> {
-  SettingsCubit(this._getThemeMode, this._setThemeMode, this._logoutUser)
-    : super(const SettingsState()) {
+  SettingsCubit(
+    this._getThemeMode,
+    this._setThemeMode,
+    this._getDashboardServerUrl,
+    this._setDashboardServerUrl,
+    this._logoutUser,
+  ) : super(const SettingsState()) {
     loadSettings();
   }
 
   final GetThemeMode _getThemeMode;
   final SetThemeMode _setThemeMode;
+  final GetDashboardServerUrl _getDashboardServerUrl;
+  final SetDashboardServerUrl _setDashboardServerUrl;
   final LogoutUser _logoutUser;
 
   Future<void> loadSettings() async {
     emit(state.copyWith(isLoading: true));
     final themeResult = await _getThemeMode();
+    final serverUrlResult = await _getDashboardServerUrl();
     emit(state.copyWith(isLoading: false));
 
     themeResult.when(
@@ -31,7 +41,16 @@ class SettingsCubit extends Cubit<SettingsState> {
         emit(state.copyWith(themeMode: themeMode));
       },
       error: (failure) {
-        emit(state.copyWith(themeMode: ThemeMode.system));
+        // do nothing
+      },
+    );
+
+    serverUrlResult.when(
+      success: (serverUrl) {
+        emit(state.copyWith(dashboardServerUrl: serverUrl));
+      },
+      error: (failure) {
+        emit(state.copyWith(dashboardServerUrl: ''));
       },
     );
   }
@@ -44,6 +63,19 @@ class SettingsCubit extends Cubit<SettingsState> {
     switch (result) {
       case Success():
         emit(state.copyWith(isLoading: false, themeMode: themeMode));
+      case Error(:final failure):
+        emit(state.copyWith(isLoading: false, failure: failure));
+    }
+  }
+
+  Future<void> setDashboardServerUrl(String url) async {
+    emit(state.copyWith(isLoading: true, failure: null));
+
+    final result = await _setDashboardServerUrl(url);
+
+    switch (result) {
+      case Success():
+        emit(state.copyWith(isLoading: false, dashboardServerUrl: url));
       case Error(:final failure):
         emit(state.copyWith(isLoading: false, failure: failure));
     }
