@@ -78,14 +78,14 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Stream<List<Chat>> watchChats() {
+  Stream<List<Chat>> watchChats(String currentUserId) {
     try {
       return _hiveService
           .watchListMap<ChatDto>(_chatRecordsKey, fromJson: ChatDto.fromJson)
           .map((chatsDto) {
             final chats = chatsDto
                 .map((dto) => dto.toDomain())
-                .where((chat) => chat.isValid)
+                .where((chat) => chat.isValid && chat.user.id == currentUserId)
                 .toList();
 
             chats.sort((a, b) {

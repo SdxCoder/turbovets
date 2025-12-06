@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:turbovetschat/config/routes/app_router.dart';
 import 'package:turbovetschat/features/agents/domain/entities/agent.dart';
+import 'package:turbovetschat/features/auth/domain/usecases/get_current_user.dart';
 
 import '../../../../core/errors/result.dart';
 import '../../domain/entities/chat.dart';
@@ -14,19 +15,30 @@ import 'chats_state.dart';
 
 @injectable
 class ChatsCubit extends Cubit<ChatsState> {
-  ChatsCubit(this._createChat, this._watchChats) : super(ChatsState.initial()) {
+  ChatsCubit(this._createChat, this._watchChats, this._getCurrentUser)
+    : super(ChatsState.initial()) {
     _startWatchingChats();
   }
 
   final CreateChat _createChat;
   final WatchChats _watchChats;
+  final GetCurrentUser _getCurrentUser;
   StreamSubscription<List<Chat>>? _chatsSubscription;
 
-  void _startWatchingChats() {
-    _chatsSubscription?.cancel();
-    _chatsSubscription = _watchChats().listen((chats) {
-      emit(state.copyWith(chats: chats));
-    });
+  Future<void> _startWatchingChats() async {
+    emit(state.copyWith(isLoading: true));
+    final result = await _getCurrentUser();
+    emit(state.copyWith(isLoading: false));
+    switch (result) {
+      case Success(:final data):
+        final currentUserId = data.user.id;
+        _chatsSubscription?.cancel();
+        _chatsSubscription = _watchChats(currentUserId).listen((chats) {
+          emit(state.copyWith(chats: chats));
+        });
+      case Error():
+        return;
+    }
   }
 
   Future<void> createChat({

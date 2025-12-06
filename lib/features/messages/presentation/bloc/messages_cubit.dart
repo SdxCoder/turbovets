@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:turbovetschat/core/services/media/media_picker_service.dart';
 import 'package:turbovetschat/features/messages/domain/usecases/mark_messages_as_read.dart';
 
 import '../../../../core/errors/failures.dart';
@@ -19,12 +20,14 @@ class MessagesCubit extends Cubit<MessagesState> {
     this._sendMessage,
     this._watchMessages,
     this._markMessagesAsRead,
+    this._mediaPickerService,
   ) : super(MessagesState.initial());
 
   final GetChatById _getChatById;
   final SendMessage _sendMessage;
   final WatchMessages _watchMessages;
   final MarkMessagesAsRead _markMessagesAsRead;
+  final MediaPickerService _mediaPickerService;
   StreamSubscription<List<Message>>? _messagesSubscription;
 
   Future<void> getChatById(String chatId) async {
@@ -63,7 +66,6 @@ class MessagesCubit extends Cubit<MessagesState> {
     required String chatId,
     required String senderId,
     required String content,
-    required bool isSelf,
   }) async {
     emit(state.copyWith(isSending: true, failure: null));
     final result = await _sendMessage(
@@ -72,7 +74,7 @@ class MessagesCubit extends Cubit<MessagesState> {
       content: content,
       type: MessageType.text,
       media: null,
-      isSelf: isSelf,
+      isSelf: true,
     );
     emit(state.copyWith(isSending: false));
 
@@ -84,7 +86,7 @@ class MessagesCubit extends Cubit<MessagesState> {
     }
   }
 
-  Future<void> sendImageMessage({
+  Future<void> _sendImageMessage({
     required String chatId,
     required String senderId,
     required List<String> media,
@@ -106,6 +108,25 @@ class MessagesCubit extends Cubit<MessagesState> {
       case Success():
         // Stream will automatically update messages
         break;
+      case Error(:final failure):
+        emit(state.copyWith(failure: failure));
+    }
+  }
+
+  Future<void> pickAndSendImage({
+    required String chatId,
+    required String senderId,
+  }) async {
+    final result = await _mediaPickerService.pickMultipleImagesFromGallery();
+
+    switch (result) {
+      case Success(:final data):
+        await _sendImageMessage(
+          chatId: chatId,
+          senderId: senderId,
+          media: data.map((e) => e.path).toList(),
+          isSelf: true,
+        );
       case Error(:final failure):
         emit(state.copyWith(failure: failure));
     }

@@ -8,7 +8,7 @@ import '../entities/chat.dart';
 
 abstract class ChatRepository {
   Future<Result<Chat>> createChat({required User user, required Agent agent});
-  Stream<List<Chat>> watchChats();
+  Stream<List<Chat>> watchChats(String currentUserId);
   Future<Result<Chat>> getChatById(String chatId);
   Future<Result<Chat>> getChatByUserAndAgentId(String userId, String agentId);
 }

@@ -2,10 +2,13 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:turbovetschat/config/injection/injection.dart';
+import 'package:turbovetschat/config/routes/app_router.dart';
 
 import '../../../../core/errors/failure_message_mapper.dart';
+import '../../../../core/errors/failures.dart';
 import '../../../../core/themes/spacings.dart';
-import '../../../../core/widgets/animated_message_list_widget.dart';
+import '../../../../core/widgets/animated_list_widget.dart';
+import '../../../../core/widgets/image_picker_failure_dialog_widget.dart';
 import '../../domain/entities/message.dart';
 import '../bloc/messages_cubit.dart';
 import '../bloc/messages_state.dart';
@@ -46,18 +49,12 @@ class _MessagesViewState extends State<MessagesView> {
       chatId: widget.chatId,
       senderId: currentUserId,
       content: text,
-      isSelf: true,
     );
   }
 
-  void _handleAttachFile() {
-    // TODO: Implement file attachment
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
+  void _handleAttachFile(String currentUserId) {
+    final cubit = context.read<MessagesCubit>();
+    cubit.pickAndSendImage(chatId: widget.chatId, senderId: currentUserId);
   }
 
   @override
@@ -67,12 +64,27 @@ class _MessagesViewState extends State<MessagesView> {
         BlocListener<MessagesCubit, MessagesState>(
           listenWhen: (previous, current) => current.failure != null,
           listener: (context, state) {
+            final failure = state.failure!;
             final failureMessage = FailureMessageMapper.mapFailureToMessage(
-              state.failure!,
+              failure,
             );
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(failureMessage.message)));
+
+            switch (failure) {
+              case ImagePickPermissionDeniedFailure():
+              case ImagePickPlatformFailure():
+                context.router.openDialog(
+                  child: ImagePickerFailureDialog(
+                    title: failureMessage.title,
+                    message: failureMessage.message,
+                  ),
+                );
+              case ImagePickCancelledFailure():
+                break;
+              default:
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(failureMessage.message)));
+            }
           },
         ),
         BlocListener<MessagesCubit, MessagesState>(
@@ -136,7 +148,7 @@ class _MessagesViewState extends State<MessagesView> {
                       ChatInputBox(
                         onSend: (text) =>
                             _handleSendMessage(text, currentUserId),
-                        onAttachFile: _handleAttachFile,
+                        onAttachFile: () => _handleAttachFile(currentUserId),
                         isSending: state.isSending,
                       ),
                     ],
@@ -145,5 +157,11 @@ class _MessagesViewState extends State<MessagesView> {
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 }

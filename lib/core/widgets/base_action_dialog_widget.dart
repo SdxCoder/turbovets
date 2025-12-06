@@ -35,6 +35,19 @@ class BaseActionDialogWidget extends StatelessWidget {
               Row(
                 spacing: Spacing.md,
                 children: [
+                  if (onCancel != null)
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: onCancel,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.error,
+                          side: BorderSide(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                        child: Text(cancelText ?? 'Cancel'),
+                      ),
+                    ),
                   if (onAction != null) ...[
                     Expanded(
                       child: ElevatedButton(
@@ -43,13 +56,6 @@ class BaseActionDialogWidget extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (onCancel != null)
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: onCancel,
-                        child: Text(cancelText ?? 'Cancel'),
-                      ),
-                    ),
                 ],
               ),
           ],

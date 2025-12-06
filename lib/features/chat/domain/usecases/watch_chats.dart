@@ -9,7 +9,7 @@ class WatchChats {
 
   final ChatRepository _repository;
 
-  Stream<List<Chat>> call() {
-    return _repository.watchChats();
+  Stream<List<Chat>> call(String currentUserId) {
+    return _repository.watchChats(currentUserId);
   }
 }

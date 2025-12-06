@@ -18,7 +18,8 @@ import '../dtos/message_dto.dart';
 @LazySingleton(as: MessageRepository)
 class MessageRepositoryImpl implements MessageRepository {
   final HiveService _hiveService;
-  MessageRepositoryImpl(this._hiveService);
+  final AutoReplyAgentService _autoReplyAgentService;
+  MessageRepositoryImpl(this._hiveService, this._autoReplyAgentService);
 
   static const String _messagesRecordKey = 'messages_record';
 
@@ -77,7 +78,7 @@ class MessageRepositoryImpl implements MessageRepository {
 
       if (message.isSelf) {
         await _markMessagesAsRead(message.chatId);
-        _triggerAutoReplyInBackground(message.chatId);
+        _triggerAutoReplyInBackground(message.chatId, message);
       }
 
       return Result.success(message);
@@ -234,14 +235,13 @@ class MessageRepositoryImpl implements MessageRepository {
     }
   }
 
-  void _triggerAutoReplyInBackground(String chatId) {
-    unawaited(_sendAutoReply(chatId));
+  void _triggerAutoReplyInBackground(String chatId, Message userMessage) {
+    unawaited(_sendAutoReply(chatId, userMessage));
   }
 
-  Future<void> _sendAutoReply(String chatId) async {
+  Future<void> _sendAutoReply(String chatId, Message userMessage) async {
     try {
-      final instance = AutoReplyAgentService.instance;
-      if (!instance.isInitialized) {
+      if (!_autoReplyAgentService.isInitialized) {
         return;
       }
 
@@ -250,19 +250,25 @@ class MessageRepositoryImpl implements MessageRepository {
         return;
       }
 
-      final replyText = await instance.getRandomReply();
+      final autoReply = await _autoReplyAgentService.getRandomAutoReply(
+        userMessage: userMessage.content,
+      );
       final agentId = chatDto.agent!.id!;
+
+      final messageType = autoReply.type == AutoReplyType.text
+          ? MessageType.text
+          : MessageType.image;
 
       final agentMessage = Message(
         id: const Uuid().v4(),
         chatId: chatId,
         senderId: agentId,
-        content: replyText,
-        type: MessageType.text,
+        content: autoReply.content,
+        type: messageType,
         timestamp: DateTime.now(),
         isSelf: false,
         status: MessageStatus.sent,
-        media: const [],
+        media: autoReply.media,
       );
 
       if (!agentMessage.isValid) {

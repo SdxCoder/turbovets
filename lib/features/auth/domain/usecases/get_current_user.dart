@@ -1,7 +1,10 @@
 import 'package:injectable/injectable.dart';
+import 'package:turbovetschat/features/auth/domain/entities/user.dart';
 
 import '../../../../core/errors/result.dart';
 import '../repositories/auth_repository.dart';
+
+typedef GetCurrentUserResult = ({User user, bool isAuthenticated});
 
 @injectable
 class GetCurrentUser {
@@ -9,12 +12,13 @@ class GetCurrentUser {
 
   final AuthRepository _repository;
 
-  Future<bool> call() async {
+  Future<Result<GetCurrentUserResult>> call() async {
     final result = await _repository.getCurrentUser();
 
-    return result.when<bool>(
-      success: (user) => user.isValid,
-      error: (failure) => false,
+    return result.when(
+      success: (user) =>
+          Result.success((user: user, isAuthenticated: user.isValid)),
+      error: (failure) => Result.failure<GetCurrentUserResult>(failure),
     );
   }
 }

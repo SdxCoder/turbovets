@@ -37,7 +37,11 @@ class RightMessage extends StatelessWidget {
               children: [
                 if (text != null) TextBubble(text: text!, isRight: true),
                 if (images != null && images!.isNotEmpty)
-                  ImageBubble(images: images!, isRight: true),
+                  ImageBubble(
+                    images: images!,
+                    isRight: true,
+                    useFileImage: true,
+                  ),
                 const SizedBox(height: Spacing.xxs),
                 MessageTimestamp(timestamp: timestamp),
               ],

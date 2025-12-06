@@ -32,3 +32,16 @@ class CacheWriteFailure extends CacheFailure {
 class UnknownFailure extends Failure {
   const UnknownFailure() : super(code: 'UNKNOWN_FAILURE');
 }
+
+class ImagePickPermissionDeniedFailure extends Failure {
+  const ImagePickPermissionDeniedFailure()
+    : super(code: 'IMAGE_PICK_PERMISSION_DENIED');
+}
+
+class ImagePickPlatformFailure extends Failure {
+  const ImagePickPlatformFailure() : super(code: 'IMAGE_PICK_PLATFORM_FAILURE');
+}
+
+class ImagePickCancelledFailure extends Failure {
+  const ImagePickCancelledFailure() : super(code: 'IMAGE_PICK_CANCELLED');
+}

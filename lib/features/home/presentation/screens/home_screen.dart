@@ -4,11 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:turbovetschat/config/injection/injection.dart';
 import 'package:turbovetschat/features/agents/presentation/bloc/agent_cubit.dart';
+import 'package:turbovetschat/features/auth/presentation/bloc/user_cubit.dart';
+import 'package:turbovetschat/features/settings/presentation/bloc/settings_cubit.dart';
 
 import '../../../../core/utils/asset_names.dart';
 import '../../../chat/presentation/screens/chats_screen.dart';
 import '../../../dashboard/presentation/screens/dashboard_screen.dart';
-import '../../../profile/presentation/screens/settings_screen.dart';
+import '../../../settings/presentation/screens/settings_screen.dart';
 import '../bloc/tabs_cubit.dart';
 
 @RoutePage()
@@ -21,6 +23,7 @@ class HomeScreen extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => TabsCubit()),
         BlocProvider(create: (_) => getIt<AgentCubit>()),
+        BlocProvider(create: (_) => getIt<UserCubit>()..loadUser()),
       ],
       child: const HomeView(),
     );
@@ -51,7 +54,9 @@ class _HomeViewState extends State<HomeView> {
           return switch (state) {
             TabsState.chats => const ChatsScreen(),
             TabsState.dashboard => const DashboardScreen(),
-            TabsState.settings => const SettingsScreen(),
+            TabsState.settings => SettingsScreen(
+              settingsCubit: context.read<SettingsCubit>(),
+            ),
           };
         },
       ),

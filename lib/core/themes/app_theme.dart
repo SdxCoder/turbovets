@@ -27,6 +27,7 @@ class AppTheme {
     inputDecorationTheme: appInputTheme,
     bottomNavigationBarTheme: appBottomNavigationBarTheme,
     dialogTheme: appDialogTheme,
+
     // Additional configurations
     scaffoldBackgroundColor: lightColorScheme.surface,
     dividerColor: lightColorScheme.outline,
@@ -48,6 +49,7 @@ class AppTheme {
     inputDecorationTheme: appInputThemeDark,
     bottomNavigationBarTheme: appBottomNavigationBarThemeDark,
     dialogTheme: appDialogThemeDark,
+
     // Additional configurations
     scaffoldBackgroundColor: darkColorScheme.surface,
     dividerColor: darkColorScheme.outline,

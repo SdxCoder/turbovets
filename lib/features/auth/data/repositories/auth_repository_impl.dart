@@ -124,7 +124,6 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<User>> getCurrentUser() async {
     try {
-      await FakeNetworkDelay.delay();
       final currentUser = _hiveService.readMap<UserDto>(
         _currentUserKey,
         fromJson: UserDto.fromJson,

@@ -65,6 +65,16 @@ class FailureMessageMapper {
         title: 'No Images Selected',
         message: 'Please select at least one image',
       ),
+      ImagePickCancelledFailure() => (title: '', message: ''),
+      ImagePickPermissionDeniedFailure() => (
+        title: 'Permission Denied',
+        message:
+            'Please give access to your gallery to select images. Open settings and grant permission to access your gallery.',
+      ),
+      ImagePickPlatformFailure() => (
+        title: 'Oops!',
+        message: 'Something went wrong. Please try again later.',
+      ),
       UnknownFailure(:final code) => (
         title: 'Unknown Error',
         message: code ?? 'An unexpected error occurred. Please try again',

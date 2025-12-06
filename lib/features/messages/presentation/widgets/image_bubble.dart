@@ -2,13 +2,20 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/themes/radiuses.dart';
 import '../../../../core/themes/spacings.dart';
+import '../../../../core/widgets/file_image_widget.dart';
 import '../../../../core/widgets/network_image_widget.dart';
 
 class ImageBubble extends StatelessWidget {
-  const ImageBubble({super.key, required this.images, required this.isRight});
+  const ImageBubble({
+    super.key,
+    required this.images,
+    required this.isRight,
+    this.useFileImage = false,
+  });
 
   final List<String> images;
   final bool isRight;
+  final bool useFileImage;
 
   static const double _width = 200;
   static const double _height = 200;
@@ -30,12 +37,19 @@ class ImageBubble extends StatelessWidget {
         child: SizedBox(
           width: _width,
           height: _height,
-          child: NetworkImageWidget(
-            imageUrl: images.first,
-            width: 200,
-            height: 200,
-            fit: BoxFit.cover,
-          ),
+          child: useFileImage
+              ? FileImageWidget(
+                  filePath: images.first,
+                  width: 200,
+                  height: 200,
+                  fit: BoxFit.cover,
+                )
+              : NetworkImageWidget(
+                  imageUrl: images.first,
+                  width: 200,
+                  height: 200,
+                  fit: BoxFit.cover,
+                ),
         ),
       );
     }
@@ -49,21 +63,35 @@ class ImageBubble extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: NetworkImageWidget(
-                  imageUrl: images.first,
-                  width: double.infinity,
-                  height: 200,
-                  fit: BoxFit.cover,
-                ),
+                child: useFileImage
+                    ? FileImageWidget(
+                        filePath: images.first,
+                        width: double.infinity,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      )
+                    : NetworkImageWidget(
+                        imageUrl: images.first,
+                        width: double.infinity,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
               ),
               const SizedBox(width: 2),
               Expanded(
-                child: NetworkImageWidget(
-                  imageUrl: images[1],
-                  width: double.infinity,
-                  height: 200,
-                  fit: BoxFit.cover,
-                ),
+                child: useFileImage
+                    ? FileImageWidget(
+                        filePath: images[1],
+                        width: double.infinity,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      )
+                    : NetworkImageWidget(
+                        imageUrl: images[1],
+                        width: double.infinity,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
               ),
             ],
           ),
@@ -84,33 +112,54 @@ class ImageBubble extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 2,
-                  child: NetworkImageWidget(
-                    imageUrl: images.first,
-                    width: double.infinity,
-                    height: 200,
-                    fit: BoxFit.cover,
-                  ),
+                  child: useFileImage
+                      ? FileImageWidget(
+                          filePath: images.first,
+                          width: double.infinity,
+                          height: 200,
+                          fit: BoxFit.cover,
+                        )
+                      : NetworkImageWidget(
+                          imageUrl: images.first,
+                          width: double.infinity,
+                          height: 200,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 const SizedBox(width: 2),
                 Expanded(
                   child: Column(
                     children: [
                       Expanded(
-                        child: NetworkImageWidget(
-                          imageUrl: images[1],
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
+                        child: useFileImage
+                            ? FileImageWidget(
+                                filePath: images[1],
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              )
+                            : NetworkImageWidget(
+                                imageUrl: images[1],
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
                       ),
                       const SizedBox(height: 2),
                       Expanded(
-                        child: NetworkImageWidget(
-                          imageUrl: images[2],
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
+                        child: useFileImage
+                            ? FileImageWidget(
+                                filePath: images[2],
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              )
+                            : NetworkImageWidget(
+                                imageUrl: images[2],
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
                       ),
                     ],
                   ),

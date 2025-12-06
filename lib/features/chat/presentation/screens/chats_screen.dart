@@ -54,7 +54,14 @@ class ChatsView extends StatelessWidget {
               return chatsAreEmpty
                   ? const SizedBox.shrink()
                   : IconButton(
-                      icon: SvgPicture.asset(AssetNames.iconGroup),
+                      icon: SvgPicture.asset(
+                        AssetNames.iconGroup,
+                        colorFilter: ColorFilter.mode(
+                          Theme.of(context).colorScheme.secondary,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+
                       onPressed: () => _handleStartChat(context),
                     );
             },
