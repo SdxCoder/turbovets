@@ -110,7 +110,7 @@ class SettingsView extends StatelessWidget {
     return switch (mode) {
       ThemeMode.light => 'Light',
       ThemeMode.dark => 'Dark',
-      ThemeMode.system => 'System',
+      _ => '',
     };
   }
 

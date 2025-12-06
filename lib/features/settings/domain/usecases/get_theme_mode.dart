@@ -24,7 +24,7 @@ class GetThemeMode {
   ThemeMode _parseThemeMode(String? themeModeString) {
     return ThemeMode.values.firstWhere(
       (mode) => mode.toString() == themeModeString,
-      orElse: () => ThemeMode.system,
+      orElse: () => ThemeMode.light,
     );
   }
 }
