@@ -32,9 +32,6 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
-flutter_app/build/
-flutter_app/.dart_tool/
-flutter_app/.flutter-plugins-dependencies
 
 # Symbolication related
 app.*.symbols
